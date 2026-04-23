@@ -19,4 +19,8 @@ pub mod vela_protocol {
     pub fn initialize_aggregator(ctx: Context<InitializeAggregator>) -> Result<()> {
         instructions::handle_initialize_aggregator(ctx)
     }
+
+    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+        instructions::handle_deposit(ctx, amount)
+    }
 }
