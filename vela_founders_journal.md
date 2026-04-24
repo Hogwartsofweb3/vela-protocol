@@ -297,5 +297,60 @@ During the hackathon demo, you will have a terminal window open. You will manual
 
 ---
 
-## Session 7 — Integration Tests + Security (to be completed)
-> *This entry will be written after Session 7 is complete.*
+## Session 7 — Integration Tests & Security (April 24, 2026)
+
+### What We Built Today
+Today we focused entirely on bulletproofing the code we wrote in the last 6 sessions. This is where we prove to the Colosseum judges that Vela is institutional-grade.
+
+Specifically:
+1. **Math Overflow Protection:** We replaced default Rust math operations with strict, custom error handling. If an arithmetic bug ever occurs (e.g., calculating interest on a trillion dollars), the transaction instantly fails with a `MathOverflow` error rather than crashing the protocol.
+2. **Oracle Staleness Guard:** We added a strict time constraint to the Rebalance engine. If the APY data from our off-chain keeper is older than 60 seconds, the protocol rejects the rotation. This prevents attackers from manipulating old, stale yield numbers.
+3. **End-to-End Test Suite:** We wrote a complete, automated integration test suite in TypeScript (using Mocha and Anchor). It simulates a user minting USDC, depositing it, the keeper updating the oracle, the protocol auto-rotating, and the user instantly withdrawing.
+
+### Key Terms Explained
+
+**Integration Test:** A script that automatically runs through the entire user journey (deposit -> earn -> withdraw) on a local blockchain to mathematically prove everything works exactly as intended before real money is involved.
+
+**Math Overflow:** A severe bug where a number gets too large for the computer to store, causing it to "wrap around" to zero. Adding overflow protection prevents millions of dollars from instantly vanishing due to a math glitch.
+
+### How This Connects to the Demo
+When judges review our GitHub, they don't just want to see frontend code. They look for test coverage and security checks. Having a full TypeScript integration suite proves that we understand how the React frontend is actually going to communicate with the smart contract in Phase 4.
+
+### What's Next
+**Session 8:** Keeper Service Skeleton. We are moving off the blockchain and onto the server. We will build the Node.js bot (the "Keeper") that runs 24/7, fetching real APY data from Kamino and Ondo, and pushing it to our smart contract.
+
+### If Someone Asks You About This Session...
+> "Today we stopped building features and focused purely on security. I had my AI implement strict math overflow protections and an oracle staleness guard to reject yield data older than 60 seconds. Then, we wrote a comprehensive end-to-end integration test suite in TypeScript to mathematically prove the entire protocol lifecycle works flawlessly before we connect the React frontend."
+
+---
+
+## Session 8 — Keeper Service Skeleton (April 24, 2026)
+
+### What We Built Today
+We officially started Phase 3 (Infrastructure). Today, we built the "brain" of the protocol—an off-chain Node.js service we call the **Keeper**.
+
+Specifically, we built:
+1. **Ondo APY Fetcher:** A script that queries Ondo Finance's API to get the current yield of USDY (U.S. Treasury debt) and normalizes it into Basis Points (bps).
+2. **Kamino APY Fetcher:** A script that uses the `@kamino-finance/klend-sdk` to read the Kamino Market directly from the Solana blockchain via RPC and mathematically calculate the true supply APY of USDC in real-time.
+3. **Oracle Writer:** An Anchor-powered transaction builder that takes those two APY numbers and pushes them into our smart contract's `YieldOracle` PDA.
+4. **The Engine Loop:** A `setInterval` loop that runs this entire sequence automatically every 30 seconds.
+
+### Key Terms Explained
+
+**Off-Chain Keeper:** Smart contracts on Solana (and Ethereum) cannot "wake themselves up" or fetch data from the regular internet (like an API). They are asleep until someone pokes them. A "Keeper" is just a traditional server running a script 24/7 that fetches data and pokes the smart contract to update it.
+
+**Basis Points (bps):** A unit of measure used in finance. 1 basis point is 0.01%. So 5.3% APY is 530 bps. We use this because smart contracts struggle with decimals, so we convert everything into whole numbers.
+
+### How This Connects to the Demo
+This is the piece that makes the "auto-compounding" magic work. Without this keeper running on a server, our smart contract would be completely blind to what the yields actually are in the real world. By fetching real data from Ondo and Kamino, we prove to the judges that this isn't just a toy—it interacts with the live ecosystem.
+
+### What's Next
+**Session 9:** Protocol Adapters. We will refine how our keeper builds deposit and withdrawal transactions for Ondo and Kamino, so it doesn't just read APY, but can actually route the funds.
+
+### If Someone Asks You About This Session...
+> "Today we built the Keeper service in Node.js. It's the off-chain engine that makes Vela smart. It uses the Kamino SDK to read on-chain market data, fetches the Ondo USDY rates, and then fires a transaction to update our Anchor YieldOracle every 30 seconds."
+
+---
+
+## Session 9 — Protocol Adapters (to be completed)
+> *This entry will be written after Session 9 is complete.*
