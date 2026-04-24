@@ -23,4 +23,12 @@ pub mod vela_protocol {
     pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
         instructions::handle_deposit(ctx, amount)
     }
+
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        instructions::handle_withdraw(ctx, amount)
+    }
+
+    pub fn update_oracle(ctx: Context<UpdateOracle>, ondo_apy_bps: u16, kamino_apy_bps: u16) -> Result<()> {
+        instructions::handle_update_oracle(ctx, ondo_apy_bps, kamino_apy_bps)
+    }
 }
