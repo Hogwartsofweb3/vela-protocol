@@ -103,10 +103,10 @@ pub fn handle_withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
 
     // 3. Update State
     let user_position = &mut ctx.accounts.user_position;
-    user_position.active_deposit = user_position.active_deposit.checked_sub(amount).unwrap();
+    user_position.active_deposit = user_position.active_deposit.checked_sub(amount).ok_or(VelaError::MathOverflow)?;
 
     let aggregator = &mut ctx.accounts.aggregator_state;
-    aggregator.total_deposited = aggregator.total_deposited.checked_sub(amount).unwrap();
+    aggregator.total_deposited = aggregator.total_deposited.checked_sub(amount).ok_or(VelaError::MathOverflow)?;
 
     msg!("Withdrawal successful: {} USDC returned, yUSDC burned.", amount);
 

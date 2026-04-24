@@ -8,4 +8,8 @@ pub enum VelaError {
     InsufficientBalance,
     #[msg("Unauthorized: Only the designated keeper can call this instruction.")]
     UnauthorizedKeeper,
+    #[msg("Math operation overflowed.")]
+    MathOverflow,
+    #[msg("Oracle data is stale. Please update oracle before rebalancing.")]
+    StaleOracleData,
 }

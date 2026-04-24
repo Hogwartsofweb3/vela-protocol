@@ -114,10 +114,10 @@ pub fn handle_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
 
     // Update State
     let user_position = &mut ctx.accounts.user_position;
-    user_position.active_deposit = user_position.active_deposit.checked_add(amount).unwrap();
+    user_position.active_deposit = user_position.active_deposit.checked_add(amount).ok_or(VelaError::MathOverflow)?;
 
     let aggregator = &mut ctx.accounts.aggregator_state;
-    aggregator.total_deposited = aggregator.total_deposited.checked_add(amount).unwrap();
+    aggregator.total_deposited = aggregator.total_deposited.checked_add(amount).ok_or(VelaError::MathOverflow)?;
 
     msg!("Deposit successful: {} USDC deposited and yUSDC minted.", amount);
 

@@ -2,7 +2,8 @@
   "name": "vela-protocol",
   "version": "0.1.0",
   "dependencies": {
-    "@coral-xyz/anchor": "^0.30.0"
+    "@coral-xyz/anchor": "^0.30.0",
+    "@solana/spl-token": "^0.4.14"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",

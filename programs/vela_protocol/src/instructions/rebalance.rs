@@ -26,6 +26,10 @@ pub fn handle_rebalance(ctx: Context<Rebalance>) -> Result<()> {
     let aggregator = &mut ctx.accounts.aggregator_state;
     let oracle = &ctx.accounts.yield_oracle;
 
+    let clock = Clock::get()?;
+    // Check if oracle data is older than 60 seconds
+    require!(clock.unix_timestamp - oracle.last_update <= 60, VelaError::StaleOracleData);
+
     // The threshold for safety: 3.5% (350 basis points)
     let safe_floor_bps = 350;
 

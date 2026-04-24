@@ -265,8 +265,35 @@ The withdrawal instruction completes the core loop of the product: Deposit -> Tr
 
 ---
 
-## Session 6 — Rebalance Instruction (to be completed)
-> *This entry will be written after Session 6 is complete.*
+## Session 6 — Rebalance Instruction (April 24, 2026)
+
+### What We Built Today
+Today we built the "brain" of the protocol: the Rebalance instruction. This is the logic that makes Vela an active yield aggregator instead of a static vault.
+
+Specifically:
+1. **Strategy State:** We updated the main vault's state to track where its capital is currently deployed (`0` for Safe Treasury, `1` for High Yield Ondo). By default, it always starts in Safe mode.
+2. **The Logic Engine:** We wrote the code that reads the APY numbers provided by the Oracle. If the high-yield option (Ondo) is safely above our 3.5% floor, it tells the protocol to stay there. If Ondo's yield collapses below 3.5%, it triggers an emergency rotation back to the Safe Treasury strategy.
+3. **Simulated Rotation:** For this session, we built the decision engine and simulated the actual transfer of funds via on-chain console logs. In Session 9, we will replace those logs with the physical transactions.
+
+### Key Terms Explained
+
+**Rebalance / Rotation:** The act of moving user capital from one underlying asset (like Kamino USDC) to another (like Ondo USDY) to optimize for yield or safety.
+
+**Decision Engine:** The specific `if/else` logic in a smart contract that automatically determines the safest and most profitable place for money to sit, without human emotion or intervention.
+
+### Why We Made These Choices
+
+**Why start in Safe mode by default?** 
+When a user deposits money, we want to guarantee principal protection immediately. Capital shouldn't be moved to the higher-risk "High Yield" bucket until the Keeper specifically runs the Rebalance check and confirms the yields are healthy.
+
+### How This Connects to the Demo
+During the hackathon demo, you will have a terminal window open. You will manually ping the oracle to artificially drop the APY below 3.5%. Then, you will run the `rebalance` instruction, and the judges will watch the smart contract automatically rotate the millions of dollars in the vault back to safety in real-time.
+
+### What's Next
+**Session 7:** Integration Tests + Security. Now that our core logic (Deposit, Withdraw, Oracle, Rebalance) is built, we need to write automated tests to mathematically prove that no one can steal the funds and that the rotations work.
+
+### If Someone Asks You About This Session...
+> "Today we engineered the core aggregator logic. I directed the AI to build a decision engine that actively reads our Oracle's APY data. If yields fall below our strict 3.5% safety floor, the smart contract automatically triggers a capital rotation back to our safe treasury assets. We also hardcoded the vault to default to the Safe strategy upon initialization to prioritize principal protection for our users from second zero."
 
 ---
 
