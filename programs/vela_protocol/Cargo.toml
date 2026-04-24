@@ -18,3 +18,7 @@ default = []
 [dependencies]
 anchor-lang = "0.30.0"
 anchor-spl = { version = "0.30.0", features = ["token", "token_2022", "associated_token"] }
+
+[dev-dependencies]
+mollusk-svm = "0.0.12"
+solana-program = "1.18.0"
