@@ -1,0 +1,23 @@
+{
+  "name": "vela-keeper",
+  "version": "1.0.0",
+  "description": "Vela Protocol Off-Chain Keeper",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon --watch src -e ts --exec ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.0",
+    "@kamino-finance/klend-sdk": "^7.3.22",
+    "@solana/web3.js": "^1.91.8",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
