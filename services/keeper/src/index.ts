@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import { fetchOndoApyBps } from "./fetchers/ondo";
 import { fetchKaminoApyBps } from "./fetchers/kamino";
 import { writeOracleData } from "./writer";
+import { ProtocolRouter } from "./router";
 import * as fs from "fs";
 
 // Load environment variables
@@ -14,11 +15,41 @@ const KEEPER_KEYPAIR_PATH = process.env.KEEPER_KEYPAIR_PATH || "./keeper.json";
 // The core loop interval (30 seconds)
 const UPDATE_INTERVAL_MS = 30 * 1000;
 
+// Simple wait helper
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Executes a function with exponential backoff retries.
+ */
+async function withRetries<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelayMs: number = 2000
+): Promise<T> {
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      attempt++;
+      console.error(`[Retry Logic] Operation failed (Attempt ${attempt}/${maxRetries}): ${error.message}`);
+      if (attempt >= maxRetries) {
+        throw new Error("Max retries reached. Operation failed permanently.");
+      }
+      const delay = baseDelayMs * Math.pow(2, attempt - 1);
+      console.log(`[Retry Logic] Waiting ${delay}ms before retrying...`);
+      await sleep(delay);
+    }
+  }
+  throw new Error("Unreachable");
+}
+
 async function startKeeper() {
   console.log("🌊 Vela Protocol Keeper Service Started");
   console.log(`Connecting to RPC: ${RPC_URL}`);
 
   const connection = new Connection(RPC_URL, "confirmed");
+  const router = new ProtocolRouter(connection);
 
   // Load the keeper keypair
   let keeperKeypair: Keypair;
@@ -40,17 +71,20 @@ async function startKeeper() {
     console.log(`Time: ${timestamp}`);
 
     try {
-      // 1. Fetch Rates Concurrently
-      const [ondoApyBps, kaminoApyBps] = await Promise.all([
-        fetchOndoApyBps(),
-        fetchKaminoApyBps(connection)
-      ]);
+      // 1. Fetch Rates Concurrently (With Retries)
+      const ondoApyBps = await withRetries(() => fetchOndoApyBps(), 3);
+      const kaminoApyBps = await withRetries(() => fetchKaminoApyBps(connection), 3);
 
-      // 2. Write to Oracle
-      await writeOracleData(connection, keeperKeypair, ondoApyBps, kaminoApyBps);
+      // 2. Write to Oracle (With Retries)
+      await withRetries(() => writeOracleData(connection, keeperKeypair, ondoApyBps, kaminoApyBps), 3);
       
+      // 3. Optional: Trigger Router evaluation
+      // (Assuming current protocol is ONDO and deploying 100 USDC)
+      const mockAmount = new (require("bn.js"))(100_000_000); 
+      await router.routeRebalance("ONDO", mockAmount, keeperKeypair);
+
     } catch (error) {
-      console.error("Error during keeper round execution:", error);
+      console.error("[CRITICAL] Round execution completely failed:", error);
     }
   };
 
