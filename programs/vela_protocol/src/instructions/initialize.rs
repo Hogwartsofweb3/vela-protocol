@@ -48,6 +48,7 @@ pub fn handle_initialize_aggregator(ctx: Context<InitializeAggregator>) -> Resul
     aggregator.keeper = KEEPER_AUTHORITY;
     aggregator.yusdc_mint = ctx.accounts.yusdc_mint.key();
     aggregator.total_deposited = 0;
+    aggregator.current_strategy = 0;
     aggregator.bump = ctx.bumps.aggregator_state;
 
     // 2. Configure the Oracle Tracker

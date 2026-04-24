@@ -31,4 +31,8 @@ pub mod vela_protocol {
     pub fn update_oracle(ctx: Context<UpdateOracle>, ondo_apy_bps: u16, kamino_apy_bps: u16) -> Result<()> {
         instructions::handle_update_oracle(ctx, ondo_apy_bps, kamino_apy_bps)
     }
+
+    pub fn rebalance(ctx: Context<Rebalance>) -> Result<()> {
+        instructions::handle_rebalance(ctx)
+    }
 }

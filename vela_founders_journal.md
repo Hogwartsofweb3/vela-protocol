@@ -231,8 +231,37 @@ This is the core mechanic of Vela. When you click "Deposit" on the frontend duri
 
 ---
 
-## Session 5 — Withdraw + Oracle Update (to be completed)
-> *This entry will be written after Session 5 is complete.*
+## Session 5 — Withdraw & Oracle Update (April 24, 2026)
+
+### What We Built Today
+Today we implemented the mechanics to let users access their funds and the infrastructure for live yield data to flow into the smart contract.
+
+Specifically, we built two new instructions:
+1. **Withdraw:** An instruction that allows a user to burn their `yUSDC` receipt tokens in exchange for retrieving their original `USDC` from the non-custodial Vault. Per your decision, we designed this as an **instant withdrawal** for the MVP so it can be easily demoed to the Colosseum judges live without a 24-hour lockup.
+2. **Oracle Update:** A secure administrative instruction that allows the Keeper bot to push live APY data from Kamino and Ondo into the `YieldOracle` PDA. It includes a safety trigger — if the APY drops below our 3.5% floor, it emits an on-chain warning to initiate a capital rotation.
+
+### Key Terms Explained
+
+**Instant Withdrawal vs Epoch Withdrawal:** Institutional platforms often use "epochs" (e.g., 24-hour windows) before you can withdraw to maintain liquidity stability. By making withdrawals instant for the hackathon MVP, we prioritize UX and demo-ability over strict institutional constraints, which can be added back in Phase 4.
+
+**Burn:** When a user withdraws, their `yUSDC` is permanently destroyed (burned) by the protocol to ensure the token supply always perfectly matches the actual USDC locked in the vault.
+
+### Why We Made These Choices
+
+**Why make withdrawals instant?** 
+If we hardcoded a 24-hour delay right now, you wouldn't be able to record a 3-minute video showing the end-to-end lifecycle of the protocol. Instant withdrawals ensure a smooth, complete user experience for the judges.
+
+**Why is the Oracle Update restricted?**
+Only the `keeper` wallet (your wallet) is authorized to call the `update_oracle` instruction. If anyone could call it, an attacker could manipulate the APY numbers to trick the protocol into executing bad rotations.
+
+### How This Connects to the Demo
+The withdrawal instruction completes the core loop of the product: Deposit -> Track Yield -> Withdraw. The Oracle update instruction is what powers the "Live APY" numbers that will show on the frontend dashboard. 
+
+### What's Next
+**Session 6:** Rebalance Instruction. Now that we have the yield data flowing in, we will build the instruction that actually rotates capital automatically when the safety thresholds are breached.
+
+### If Someone Asks You About This Session...
+> "We finalized the core protocol loop by adding the withdrawal logic. To optimize for the demo and hackathon timeline, I decided to keep withdrawals instant for now, allowing judges to test the full lifecycle immediately. We also built the Oracle bridge, allowing our off-chain keeper to securely push live Kamino and Ondo yields into the smart contract state, complete with a 3.5% APY safety tripwire."
 
 ---
 
