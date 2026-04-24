@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/vela_logo.png" alt="Vela Protocol Logo" width="200" />
   <h1>Vela Protocol</h1>
-  <p><b>The Jupiter of RWA yield — bringing stable, institutional-grade yield to everyone on Solana.</b></p>
+  <p><b>One token. Every RWA yield on Solana, auto-compounded.</b></p>
 </div>
 
 ---
