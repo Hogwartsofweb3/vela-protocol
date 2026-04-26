@@ -14,7 +14,7 @@ pub struct Deposit<'info> {
         seeds = [b"aggregator_state"],
         bump = aggregator_state.bump
     )]
-    pub aggregator_state: Account<'info, AggregatorConfig>,
+    pub aggregator_state: Box<Account<'info, AggregatorConfig>>,
 
     #[account(
         init_if_needed,
@@ -23,13 +23,13 @@ pub struct Deposit<'info> {
         seeds = [b"user_position", user.key().as_ref()],
         bump
     )]
-    pub user_position: Account<'info, UserPosition>,
+    pub user_position: Box<Account<'info, UserPosition>>,
 
     #[account(
         mut,
         mint::token_program = token_program
     )]
-    pub usdc_mint: InterfaceAccount<'info, Mint>,
+    pub usdc_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         init_if_needed,
@@ -38,7 +38,7 @@ pub struct Deposit<'info> {
         associated_token::authority = aggregator_state,
         associated_token::token_program = token_program
     )]
-    pub vault_usdc_account: InterfaceAccount<'info, TokenAccount>,
+    pub vault_usdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         mut,
@@ -46,7 +46,7 @@ pub struct Deposit<'info> {
         associated_token::authority = user,
         associated_token::token_program = token_program
     )]
-    pub user_usdc_account: InterfaceAccount<'info, TokenAccount>,
+    pub user_usdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         mut,
@@ -55,7 +55,7 @@ pub struct Deposit<'info> {
         mint::authority = aggregator_state,
         mint::token_program = token_2022_program
     )]
-    pub yusdc_mint: InterfaceAccount<'info, Mint>,
+    pub yusdc_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         init_if_needed,
@@ -64,7 +64,7 @@ pub struct Deposit<'info> {
         associated_token::authority = user,
         associated_token::token_program = token_2022_program
     )]
-    pub user_yusdc_account: InterfaceAccount<'info, TokenAccount>,
+    pub user_yusdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub system_program: Program<'info, System>,
     pub token_program: Interface<'info, TokenInterface>,
@@ -100,8 +100,9 @@ pub fn handle_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     transfer_checked(transfer_cpi_ctx, amount, 6)?;
 
     // Mint yUSDC to User (1:1 with USDC deposited)
-    let seeds = &[b"aggregator_state", &[ctx.accounts.aggregator_state.bump]];
-    let signer = &[&seeds[..]];
+    let bump = ctx.accounts.aggregator_state.bump;
+    let seeds: &[&[u8]] = &[b"aggregator_state", &[bump]];
+    let signer = &[seeds];
 
     let mint_cpi_accounts = MintTo {
         mint: ctx.accounts.yusdc_mint.to_account_info(),

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use solana_program::pubkey;
 
-declare_id!("vELaP4bE8YfS2PqNXZj5m3tEwP6dZk3P");
+declare_id!("22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP");
 
 // Configured Keeper Authority (Michael's Devnet Wallet)
 pub const KEEPER_AUTHORITY: Pubkey = pubkey!("FfS9UHyxbRjtKTRpskov8oYu6xtx2m9Pe1BccLJeZvQZ");

@@ -6,10 +6,10 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-vela_protocol = "vELaP4bE8YfS2PqNXZj5m3tEwP6dZk3P"
+vela_protocol = "22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP"
 
 [programs.devnet]
-vela_protocol = "vELaP4bE8YfS2PqNXZj5m3tEwP6dZk3P"
+vela_protocol = "22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP"
 
 [registry]
 url = "https://api.apr.dev"

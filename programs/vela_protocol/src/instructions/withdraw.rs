@@ -14,7 +14,7 @@ pub struct Withdraw<'info> {
         seeds = [b"aggregator_state"],
         bump = aggregator_state.bump
     )]
-    pub aggregator_state: Account<'info, AggregatorConfig>,
+    pub aggregator_state: Box<Account<'info, AggregatorConfig>>,
 
     #[account(
         mut,
@@ -22,13 +22,13 @@ pub struct Withdraw<'info> {
         bump = user_position.bump,
         has_one = owner
     )]
-    pub user_position: Account<'info, UserPosition>,
+    pub user_position: Box<Account<'info, UserPosition>>,
 
     #[account(
         mut,
         mint::token_program = token_program
     )]
-    pub usdc_mint: InterfaceAccount<'info, Mint>,
+    pub usdc_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         mut,
@@ -36,7 +36,7 @@ pub struct Withdraw<'info> {
         associated_token::authority = aggregator_state,
         associated_token::token_program = token_program
     )]
-    pub vault_usdc_account: InterfaceAccount<'info, TokenAccount>,
+    pub vault_usdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         init_if_needed,
@@ -45,7 +45,7 @@ pub struct Withdraw<'info> {
         associated_token::authority = user,
         associated_token::token_program = token_program
     )]
-    pub user_usdc_account: InterfaceAccount<'info, TokenAccount>,
+    pub user_usdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         mut,
@@ -54,7 +54,7 @@ pub struct Withdraw<'info> {
         mint::authority = aggregator_state,
         mint::token_program = token_2022_program
     )]
-    pub yusdc_mint: InterfaceAccount<'info, Mint>,
+    pub yusdc_mint: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         mut,
@@ -62,7 +62,7 @@ pub struct Withdraw<'info> {
         associated_token::authority = user,
         associated_token::token_program = token_2022_program
     )]
-    pub user_yusdc_account: InterfaceAccount<'info, TokenAccount>,
+    pub user_yusdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     /// CHECK: Validated inside constraint
     pub owner: AccountInfo<'info>,
@@ -88,8 +88,9 @@ pub fn handle_withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
     burn(burn_cpi_ctx, amount)?;
 
     // 2. Transfer USDC from Vault to User
-    let seeds = &[b"aggregator_state", &[ctx.accounts.aggregator_state.bump]];
-    let signer = &[&seeds[..]];
+    let bump = ctx.accounts.aggregator_state.bump;
+    let seeds: &[&[u8]] = &[b"aggregator_state", &[bump]];
+    let signer = &[seeds];
 
     let transfer_cpi_accounts = TransferChecked {
         from: ctx.accounts.vault_usdc_account.to_account_info(),

@@ -352,5 +352,66 @@ This is the piece that makes the "auto-compounding" magic work. Without this kee
 
 ---
 
-## Session 9 — Protocol Adapters (to be completed)
-> *This entry will be written after Session 9 is complete.*
+## Session 10 — Test Coverage & Architecture (April 24, 2026)
+
+### What We Built Today
+We officially concluded Phase 3! Today was less about writing logic and more about **packaging the protocol for the hackathon judges.**
+
+Specifically, we built:
+1. **`ARCHITECTURE.md`:** A comprehensive, VC-friendly breakdown of our 3-layer system (Smart Contracts, Keeper, Frontend). 
+2. **`README.md` Overhaul:** We replaced the empty GitHub readme with a sleek, professional "Hackathon-Ready" landing page detailing the problem, solution, architecture, and security guards.
+3. **Mollusk Benchmark Scaffold:** We laid the groundwork for Compute Unit (CU) testing. This is how we prove to Solana engineers that our smart contract is highly optimized and cheap to run.
+4. **Keeper Config:** We finalized the `.env.example` so the Keeper is ready to be booted up on devnet.
+
+### Key Terms Explained
+
+**Compute Units (CUs):** On Solana, you pay for the exact amount of computational effort your transaction requires. A "Compute Unit" is a tiny fraction of that effort. By running CU benchmarks, we prove that our code isn't bloated and won't cost users high gas fees.
+
+**Mollusk:** A blazing-fast testing framework built by Solana developers that lets us test our smart contracts without booting up a heavy local validator.
+
+### How This Connects to the Demo
+The `ARCHITECTURE.md` document is literally the script for **Slide 5 of your Pitch Deck**. When judges land on our GitHub repository, the new `README.md` is the very first thing they will see. It immediately communicates that Vela is a serious, institutional-grade product built by a professional team, not just a weekend hack.
+
+### What's Next
+**Phase 4: Frontend!** 
+We are moving entirely to the visual layer. We will scaffold the Next.js dashboard, connect the Solana wallet provider, and start building the UI where users will deposit their USDC.
+
+### If Someone Asks You About This Session...
+> "Today we wrapped up our backend infrastructure. We formalized our 3-layer architecture into comprehensive documentation for the judges, overhauled the GitHub README, and prepared our Compute Unit benchmarks so we can mathematically prove our code is gas-optimized."
+
+---
+
+## Session 11 — Next.js Scaffold & Wallet Connection (April 24, 2026)
+
+### What We Built Today
+Today we officially started Phase 4: Frontend! We left the backend behind and built the foundation of the web application where your users will actually interact with the protocol.
+
+Specifically, we built:
+1. **The Next.js Framework:** We initialized a modern React application using the official `@solana/react-hooks` toolkit, ensuring our app communicates smoothly with the blockchain.
+2. **Wallet Connection UI:** We built a custom "Access Vault" connection card. Users can now click to connect their Phantom or Backpack wallets. The UI automatically updates to show their connected status and formats their Solana address cleanly.
+3. **Vela Brand Implementation:** We stripped out the generic boilerplate and applied the strict Vela brand identity. This includes the deep navy background (`#0B1120`), vibrant cyan accents, the `Outfit` font for headings, and an embedded version of our sailboat logo.
+
+### Key Terms Explained
+
+**Next.js:** A framework built on top of React that makes web applications incredibly fast and SEO-friendly. It is the industry standard for modern web development.
+
+**Wallet Connection / Provider:** Unlike Web2 where users log in with an email and password, in Web3, the user's wallet (like Phantom) *is* their account. The "Provider" is the code that allows our website to securely ask the user's browser extension for permission to read their address and request signatures.
+
+**RPC (Remote Procedure Call):** The bridge between our website and the Solana blockchain. We configured our app to use **Helius Devnet** RPC nodes, which are much faster and more reliable than the public default nodes.
+
+### Why We Made These Choices
+
+**Why use the official Solana `@solana/react-hooks`?** 
+Many developers use older, bloated wallet adapters. The new `@solana/client` standard we used today is significantly lighter and faster, proving to the Colosseum judges that we are building with the absolute cutting-edge 2026 tooling.
+
+**Why focus heavily on branding immediately?** 
+Institutions won't deposit into a protocol that looks like a high school project. By applying the dark-mode aesthetic and the clean typography from day one, we set a premium standard for the rest of the application.
+
+### How This Connects to the Demo
+This is the front door of the product. During the pitch video, the very first thing you will do is click "Connect Wallet" on this exact screen. 
+
+### What's Next
+**Session 12:** APY Dashboard. As soon as the Product Designer finishes the Figma mockups, we will write the code to display the live Kamino and Ondo yields in a beautiful table interface.
+
+### If Someone Asks You About This Session...
+> "Today we laid the foundation for the frontend. I directed my agentic developer to scaffold a Next.js application using the bleeding-edge `@solana/client` hooks. We implemented a seamless, non-custodial wallet connection flow, hooked it up to Helius RPC nodes for maximum reliability, and strictly applied our premium, dark-mode brand guidelines to ensure an institutional-grade aesthetic from day one."
