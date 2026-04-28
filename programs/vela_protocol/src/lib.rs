@@ -39,4 +39,13 @@ pub mod vela_protocol {
     pub fn rebalance(ctx: Context<Rebalance>) -> Result<()> {
         instructions::handle_rebalance(ctx)
     }
+
+    pub fn create_token_metadata(
+        ctx: Context<CreateTokenMetadata>,
+        name: String,
+        symbol: String,
+        uri: String,
+    ) -> Result<()> {
+        instructions::handle_create_token_metadata(ctx, name, symbol, uri)
+    }
 }

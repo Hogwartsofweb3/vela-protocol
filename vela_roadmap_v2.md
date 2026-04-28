@@ -395,6 +395,16 @@ docs: submission description, pitch deck copy, and demo script finalized
 
 ---
 
+## Post-Hackathon / Mainnet Pre-flight (Explorer Checklist)
+> **Goal:** Resolve all missing metadata on Solana Explorer before going live with real funds.
+
+- [ ] **Security.txt:** Generate and upload a `security.txt` via `@solana-program/program-metadata` to provide bug bounty contact info.
+- [ ] **Program IDL:** Resolve the `proc_macro2` anchor-syn bug, generate the IDL JSON, and upload it on-chain so explorers can parse our custom instructions.
+- [ ] **Tokens:** Run the protocol `initialize` instruction to deploy the `yUSDC` mint and the vault, which will populate the 'Tokens' tab.
+- [ ] **Domains (Optional):** Purchase a `.sol` domain (e.g. `velaprotocol.sol`) and attach it to the Program ID.
+
+---
+
 ## Michael's Daily Checklist (Every Build Day)
 
 > You don't write code. You do these. Every day. Non-negotiable.

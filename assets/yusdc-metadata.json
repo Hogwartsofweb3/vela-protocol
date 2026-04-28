@@ -1,0 +1,13 @@
+{
+  "name": "Vela Yield USD",
+  "symbol": "yUSDC",
+  "description": "The yield-bearing receipt token of the Vela Protocol RWA aggregator on Solana. Automatically compounds real-world asset yields from Ondo USDY and Kamino USDC lending.",
+  "image": "https://raw.githubusercontent.com/Hogwartsofweb3/vela-protocol/main/assets/vela_logo.png",
+  "external_url": "https://vela.finance",
+  "attributes": [
+    { "trait_type": "Protocol", "value": "Vela Protocol" },
+    { "trait_type": "Standard", "value": "Token-2022" },
+    { "trait_type": "Strategy", "value": "RWA Yield Aggregator" },
+    { "trait_type": "Network", "value": "Solana" }
+  ]
+}
