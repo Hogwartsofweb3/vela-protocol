@@ -20,7 +20,9 @@ pub struct Withdraw<'info> {
         mut,
         seeds = [b"user_position", user.key().as_ref()],
         bump = user_position.bump,
-        has_one = owner
+        // Explicit ownership constraint — only the signing user can withdraw
+        // from their own position. Consistent with the deposit instruction pattern.
+        constraint = user_position.owner == user.key() @ VelaError::Unauthorized
     )]
     pub user_position: Box<Account<'info, UserPosition>>,
 
@@ -38,6 +40,7 @@ pub struct Withdraw<'info> {
     )]
     pub vault_usdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
+    // init_if_needed: user may have closed their USDC ATA after depositing.
     #[account(
         init_if_needed,
         payer = user,
@@ -64,9 +67,6 @@ pub struct Withdraw<'info> {
     )]
     pub user_yusdc_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    /// CHECK: Validated inside constraint
-    pub owner: AccountInfo<'info>,
-
     pub system_program: Program<'info, System>,
     pub token_program: Interface<'info, TokenInterface>,
     pub token_2022_program: Interface<'info, TokenInterface>,
@@ -87,7 +87,7 @@ pub fn handle_withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
     let burn_cpi_ctx = CpiContext::new(burn_cpi_program, burn_cpi_accounts);
     burn(burn_cpi_ctx, amount)?;
 
-    // 2. Transfer USDC from Vault to User
+    // 2. Transfer USDC from Vault to User (vault signs with PDA)
     let bump = ctx.accounts.aggregator_state.bump;
     let seeds: &[&[u8]] = &[b"aggregator_state", &[bump]];
     let signer = &[seeds];
@@ -104,10 +104,14 @@ pub fn handle_withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
 
     // 3. Update State
     let user_position = &mut ctx.accounts.user_position;
-    user_position.active_deposit = user_position.active_deposit.checked_sub(amount).ok_or(VelaError::MathOverflow)?;
+    user_position.active_deposit = user_position.active_deposit
+        .checked_sub(amount)
+        .ok_or(VelaError::MathOverflow)?;
 
     let aggregator = &mut ctx.accounts.aggregator_state;
-    aggregator.total_deposited = aggregator.total_deposited.checked_sub(amount).ok_or(VelaError::MathOverflow)?;
+    aggregator.total_deposited = aggregator.total_deposited
+        .checked_sub(amount)
+        .ok_or(VelaError::MathOverflow)?;
 
     msg!("Withdrawal successful: {} USDC returned, yUSDC burned.", amount);
 

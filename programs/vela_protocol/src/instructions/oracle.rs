@@ -23,18 +23,24 @@ pub struct UpdateOracle<'info> {
 }
 
 pub fn handle_update_oracle(ctx: Context<UpdateOracle>, ondo_apy_bps: u16, kamino_apy_bps: u16) -> Result<()> {
+    // ── Security: Hard insanity cap ───────────────────────────────────────────
+    // A compromised keeper cannot set APY above 50% (5000 bps = 50%).
+    // This prevents catastrophic over-minting of yUSDC regardless of keeper key exposure.
+    const APY_CAP_BPS: u16 = 5_000;
+    require!(ondo_apy_bps   <= APY_CAP_BPS, VelaError::OracleApyTooHigh);
+    require!(kamino_apy_bps <= APY_CAP_BPS, VelaError::OracleApyTooHigh);
+
     let oracle = &mut ctx.accounts.yield_oracle;
-    
-    oracle.ondo_apy_bps = ondo_apy_bps;
+
+    oracle.ondo_apy_bps   = ondo_apy_bps;
     oracle.kamino_apy_bps = kamino_apy_bps;
-    
+
     let clock = Clock::get()?;
     oracle.last_update = clock.unix_timestamp;
 
     msg!("Oracle updated. Ondo APY: {} bps, Kamino APY: {} bps", ondo_apy_bps, kamino_apy_bps);
 
-    // Safety Trigger Check (3.5% floor = 350 bps)
-    // If our primary yield source drops below the target floor, we trigger a warning for the keeper.
+    // ── Safety floor: warn if primary yield drops below 3.5% target ──────────
     if ondo_apy_bps < 350 {
         msg!("WARNING: Ondo Yield has dropped below the 3.5% safe floor. Rotation trigger evaluated.");
     }

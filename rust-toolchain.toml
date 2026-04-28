@@ -1,0 +1,7 @@
+[toolchain]
+# Pinned to 1.85.0 — this is the minimum version that supports edition2024
+# (required by cpufeatures 0.3.x and newer Solana transitive deps) while
+# still generating Cargo.lock v3 format (required by Anchor's BPF cargo).
+# Do NOT upgrade this without testing the full anchor build first.
+channel = "1.85.0"
+components = ["rustfmt", "clippy"]

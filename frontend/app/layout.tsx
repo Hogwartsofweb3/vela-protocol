@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, Inter } from "next/font/google";
+import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/providers";
 
@@ -11,6 +11,12 @@ const inter = Inter({
 
 const outfit = Outfit({
   variable: "--font-outfit",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -35,7 +41,7 @@ export default function RootLayout({
       <Providers>
         <body
           suppressHydrationWarning
-          className={`${inter.variable} ${outfit.variable} antialiased`}
+          className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} antialiased`}
         >
           {children}
         </body>

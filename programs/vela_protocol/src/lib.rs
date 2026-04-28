@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
-use solana_program::pubkey;
+use anchor_lang::solana_program::pubkey;
 
 declare_id!("22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP");
 
-// Configured Keeper Authority (Michael's Devnet Wallet)
-pub const KEEPER_AUTHORITY: Pubkey = pubkey!("FfS9UHyxbRjtKTRpskov8oYu6xtx2m9Pe1BccLJeZvQZ");
+// Configured Keeper Authority (Dedicated keeper keypair — services/keeper/keeper.json)
+pub const KEEPER_AUTHORITY: Pubkey = pubkey!("B4vpi92S581H6NtzM1cUs3vK3mvGd32XXqyd1w3M5n8X");
 
 pub mod instructions;
 pub mod state;
@@ -18,6 +18,10 @@ pub mod vela_protocol {
 
     pub fn initialize_aggregator(ctx: Context<InitializeAggregator>) -> Result<()> {
         instructions::handle_initialize_aggregator(ctx)
+    }
+
+    pub fn create_position(ctx: Context<CreatePosition>) -> Result<()> {
+        instructions::handle_create_position(ctx)
     }
 
     pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {

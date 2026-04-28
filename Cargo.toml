@@ -1,6 +1,8 @@
 [workspace]
 members = [
-    "programs/*"
+    "programs/vela_protocol",
+    "programs/mock_kamino",
+    "programs/mock_ondo"
 ]
 resolver = "2"
 

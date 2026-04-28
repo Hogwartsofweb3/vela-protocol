@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0B1120;
-  --foreground: #ffffff;
-  --border-strong: rgba(255, 255, 255, 0.15);
-  --border-low: rgba(255, 255, 255, 0.05);
-  --accent: #00E5FF; /* Cyan/Teal */
-  --muted: #94A3B8;
-  --cream: #1E293B;
-  --card: #0F172A;
-  --card-foreground: #ffffff;
+  --background: #0A0F1E;
+  --foreground: #F0F4FF;
+  --border-strong: rgba(240, 244, 255, 0.15);
+  --border-low: rgba(240, 244, 255, 0.05);
+  --accent: #00B4D8; /* Ocean Blue / Teal */
+  --muted: #8A9CB0;
+  --cream: #12192B;
+  --card: #0D1326;
+  --card-foreground: #F0F4FF;
+  --success: #22C55E;
   --radius: 0.75rem;
   --font-sans: var(--font-outfit), var(--font-inter), system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;
@@ -17,15 +18,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0B1120;
-    --foreground: #ffffff;
-    --border-strong: rgba(255, 255, 255, 0.15);
-    --border-low: rgba(255, 255, 255, 0.05);
-    --accent: #00E5FF;
-    --muted: #94A3B8;
-    --cream: #1E293B;
-    --card: #0F172A;
-    --card-foreground: #ffffff;
+    --background: #0A0F1E;
+    --foreground: #F0F4FF;
+    --border-strong: rgba(240, 244, 255, 0.15);
+    --border-low: rgba(240, 244, 255, 0.05);
+    --accent: #00B4D8;
+    --muted: #8A9CB0;
+    --cream: #12192B;
+    --card: #0D1326;
+    --card-foreground: #F0F4FF;
   }
 }
 
@@ -41,6 +42,7 @@
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-success: var(--success);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --radius-md: calc(var(--radius) - 2px);

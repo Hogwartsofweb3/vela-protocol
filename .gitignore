@@ -1,5 +1,9 @@
 vela_founders_journal.md
+vela_roadmap_v2.md
 node_modules/
 target/
 .env
 dist/
+*.log
+services/keeper/keeper.json
+services/keeper/convert-key.ts
