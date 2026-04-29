@@ -71,6 +71,19 @@ export function PortfolioView() {
 
   return (
     <div className="w-full bg-card border border-border-low rounded-2xl p-6 md:p-8 shadow-xl mt-8">
+      {balance === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center py-8">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <TrendingUp size={32} className="text-primary" />
+          </div>
+          <h3 className="text-xl font-semibold text-foreground mb-2">No Active Position</h3>
+          <p className="text-sm text-muted max-w-sm">
+            Deposit USDC to mint yUSDC and start earning auto-compounded yield immediately. 
+          </p>
+        </div>
+      ) : (
+        <>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wider text-muted mb-1">Total Balance</p>
@@ -103,6 +116,8 @@ export function PortfolioView() {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

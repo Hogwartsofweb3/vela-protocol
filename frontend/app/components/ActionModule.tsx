@@ -87,10 +87,15 @@ export function ActionModule() {
       console.log("Transaction Sent:", signature);
       
       setAmount("");
-      alert(`${activeTab === "deposit" ? "Deposit" : "Withdrawal"} successful!`);
+      setIsDepositSuccess(true);
+      setTimeout(() => setIsDepositSuccess(false), 5000);
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || "Transaction failed");
+      let humanError = err.message || "Transaction failed.";
+      if (humanError.includes("User rejected")) humanError = "You cancelled the transaction.";
+      if (humanError.includes("Insufficient")) humanError = "Insufficient funds for this transaction.";
+      if (humanError.includes("blockhash")) humanError = "Network timeout. Please try again.";
+      setErrorMsg(humanError);
     } finally {
       setLoading(false);
     }
