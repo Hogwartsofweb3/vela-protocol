@@ -5,8 +5,8 @@ import { PropsWithChildren } from "react";
 
 import { autoDiscover, createClient } from "@solana/client";
 
-import { MAINNET_RPC } from "../lib/constants";
-const rpcUrl = MAINNET_RPC;
+import { DEVNET_RPC } from "../lib/constants";
+const rpcUrl = DEVNET_RPC;
 
 const client = createClient({
   endpoint: rpcUrl,

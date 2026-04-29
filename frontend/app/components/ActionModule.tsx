@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { MIN_DEPOSIT_USDC, MAINNET_USDC_MINT } from "../lib/constants";
+import { MIN_DEPOSIT_USDC, DEVNET_USDC_MINT } from "../lib/constants";
 import { ArrowDownCircle, ArrowUpCircle, Loader2 } from "lucide-react";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { buildDepositTx, buildWithdrawTx } from "../lib/transaction-builder";
@@ -31,7 +31,7 @@ export function ActionModule() {
     const fetchBalance = async () => {
       try {
         const walletPubkey = publicKey;
-        const usdcMint = new PublicKey(MAINNET_USDC_MINT);
+        const usdcMint = new PublicKey(DEVNET_USDC_MINT);
         const ata = getAssociatedTokenAddressSync(usdcMint, walletPubkey);
         const info = await connection.getTokenAccountBalance(ata);
         setUsdcBalance(info.value.uiAmount);
