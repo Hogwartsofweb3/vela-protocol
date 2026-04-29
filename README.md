@@ -6,6 +6,9 @@ Vela Protocol is a non-custodial smart contract system that automatically routes
 
 Built for the **Colosseum Frontier Hackathon (2026)**.
 
+🎥 **[Watch the 2-Minute Demo Video (Loom)](#)**  
+🌐 **[Try the Live Dashboard (Devnet)](#)**
+
 ---
 
 ## ⚡ The Problem & Solution
@@ -23,6 +26,23 @@ Vela operates on a robust 3-layer architecture:
 1. **Smart Contracts (Anchor):** Non-custodial vaults, mathematical proofs, and Token-2022 Interest-Bearing Mints.
 2. **Intelligence Layer (Node.js Keeper):** An off-chain router that evaluates live APYs from Ondo and Kamino and commands the vault to rebalance.
 3. **Application Layer (Next.js):** A blazing-fast, consumer-friendly dashboard for deposits and analytics.
+
+```mermaid
+graph TD
+    User[User Wallet] -- Deposits USDC --> Vault[Vela Vault PDA]
+    Vault -- Mints yUSDC --> User
+    
+    Keeper[Off-chain Keeper] -- Fetches Live APY --> Oracles(Ondo & Kamino)
+    Keeper -- Updates --> YieldOracle[Yield Oracle PDA]
+    YieldOracle -- Triggers Rebalance --> Vault
+    
+    Vault -- Deploys USDC --> Strategy1(Ondo USDY)
+    Vault -- Deploys USDC --> Strategy2(Kamino JLP)
+    
+    style User fill:#0A0F1E,stroke:#00B4D8,stroke-width:2px,color:#F0F4FF
+    style Vault fill:#0D1326,stroke:#22C55E,stroke-width:2px,color:#F0F4FF
+    style Keeper fill:#0D1326,stroke:#F59E0B,stroke-width:2px,color:#F0F4FF
+```
 
 *For a deep dive into the technical design, read our [Architecture Overview](ARCHITECTURE.md).*
 
