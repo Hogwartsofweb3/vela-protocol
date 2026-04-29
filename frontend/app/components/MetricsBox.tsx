@@ -19,26 +19,23 @@ export function MetricsBox() {
     const fetchMetrics = async () => {
       try {
         const connection = new Connection(DEVNET_RPC, "confirmed");
-        
-        // Dummy provider just to read data
         const dummyProvider = new anchor.AnchorProvider(connection, {} as any, { commitment: "confirmed" });
         const program = getProgram(dummyProvider);
         const oraclePda = getYieldOraclePDA();
-        
+
         const oracleData = await program.account.yieldOracle.fetch(oraclePda);
-        
+
         const ondoApy = oracleData.ondoApyBps / 100;
         const kaminoApy = oracleData.kaminoApyBps / 100;
-        
+
         setApy(Math.max(ondoApy, kaminoApy));
-        
-        if (ondoApy > kaminoApy) {
-          setStrategy(1); // Ondo
-        } else {
-          setStrategy(0); // Kamino
+        setStrategy(ondoApy > kaminoApy ? 1 : 0);
+      } catch (err: any) {
+        // Oracle PDA doesn't exist yet (program not initialized on devnet).
+        // Silently keep the default mock values — no red errors in console.
+        if (!err?.message?.includes("Account does not exist")) {
+          console.error("Error fetching oracle metrics:", err);
         }
-      } catch (err) {
-        console.error("Error fetching oracle metrics:", err);
       }
     };
 

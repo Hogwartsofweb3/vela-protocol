@@ -3,9 +3,12 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { MetricsBox } from "./components/MetricsBox";
 import { PortfolioView } from "./components/PortfolioView";
 import { ActionModule } from "./components/ActionModule";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { wallets, select, connect, disconnect, publicKey, connected, connecting } = useWallet();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   const address = publicKey?.toBase58();
   const formatAddress = (addr: string) =>
@@ -36,7 +39,7 @@ export default function Home() {
         </div>
 
         <div>
-          {!connected ? (
+          {!mounted ? null : !connected ? (
             <div className="flex gap-2">
               {wallets.filter(w => w.readyState === 'Installed').slice(0, 3).map((w) => (
                 <button
@@ -51,6 +54,12 @@ export default function Home() {
                   {connecting ? "Connecting…" : `Connect ${w.adapter.name}`}
                 </button>
               ))}
+              {wallets.filter(w => w.readyState === 'Installed').length === 0 && (
+                <a href="https://phantom.app" target="_blank" rel="noreferrer"
+                  className="rounded-full bg-primary/10 border border-primary/20 px-6 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20">
+                  Install Phantom
+                </a>
+              )}
             </div>
           ) : (
              <div className="flex items-center gap-4">
