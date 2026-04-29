@@ -1,14 +1,13 @@
 "use client";
-import { useWalletConnection } from "@solana/react-hooks";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { MetricsBox } from "./components/MetricsBox";
 import { PortfolioView } from "./components/PortfolioView";
 import { ActionModule } from "./components/ActionModule";
 
 export default function Home() {
-  const { connectors, connect, disconnect, wallet, status } =
-    useWalletConnection();
+  const { wallets, select, connect, disconnect, publicKey, connected, connecting } = useWallet();
 
-  const address = wallet?.account.address.toString();
+  const address = publicKey?.toBase58();
   const formatAddress = (addr: string) =>
     `${addr.slice(0, 4)}...${addr.slice(-4)}`;
 
@@ -37,16 +36,19 @@ export default function Home() {
         </div>
 
         <div>
-          {status !== "connected" ? (
+          {!connected ? (
             <div className="flex gap-2">
-              {connectors.map((connector) => (
+              {wallets.filter(w => w.readyState === 'Installed').slice(0, 3).map((w) => (
                 <button
-                  key={connector.id}
-                  onClick={() => connect(connector.id)}
-                  disabled={status === "connecting"}
+                  key={w.adapter.name}
+                  onClick={async () => {
+                    select(w.adapter.name);
+                    try { await connect(); } catch(e){}
+                  }}
+                  disabled={connecting}
                   className="rounded-full bg-primary/10 border border-primary/20 px-6 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20"
                 >
-                  {status === "connecting" ? "Connecting…" : `Connect ${connector.name}`}
+                  {connecting ? "Connecting…" : `Connect ${w.adapter.name}`}
                 </button>
               ))}
             </div>
@@ -87,7 +89,7 @@ export default function Home() {
           <div className="w-full lg:w-1/2 flex justify-center">
              <ActionModule />
           </div>
-          {status === "connected" && (
+          {connected && (
             <div className="w-full lg:w-1/2 flex justify-center">
               <PortfolioView />
             </div>

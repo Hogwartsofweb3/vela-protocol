@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useWalletConnection } from "@solana/react-hooks";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { MIN_DEPOSIT_USDC, DEVNET_USDC_MINT } from "../lib/constants";
 import { ArrowDownCircle, ArrowUpCircle, Loader2 } from "lucide-react";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -9,7 +9,8 @@ import { buildDepositTx, buildWithdrawTx } from "../lib/transaction-builder";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 
 export function ActionModule() {
-  const { status, wallet, connect, connectors } = useWalletConnection();
+  const { publicKey, connected, sendTransaction, connect, select, wallets } = useWallet();
+  const { connection } = useConnection();
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
   const [amount, setAmount] = useState<string>("");
 
@@ -22,15 +23,14 @@ export function ActionModule() {
   const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    if (status !== "connected" || !wallet) {
+    if (!connected || !publicKey) {
       setUsdcBalance(0);
       return;
     }
     
     const fetchBalance = async () => {
       try {
-        const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.devnet.solana.com", "confirmed");
-        const walletPubkey = new PublicKey(wallet.account.address);
+        const walletPubkey = publicKey;
         const usdcMint = new PublicKey(DEVNET_USDC_MINT);
         const ata = getAssociatedTokenAddressSync(usdcMint, walletPubkey);
         const info = await connection.getTokenAccountBalance(ata);
@@ -41,13 +41,14 @@ export function ActionModule() {
       }
     };
     fetchBalance();
-  }, [status, wallet]);
+  }, [connected, publicKey, connection]);
 
   const handleAction = async () => {
-    if (status !== "connected" || !wallet) {
-      if (connectors.length > 0) {
-        const phantom = connectors.find(c => c.name.toLowerCase().includes("phantom"));
-        connect(phantom ? phantom.id : connectors[0].id);
+    if (!connected || !publicKey) {
+      const installed = wallets.filter(w => w.readyState === 'Installed');
+      if (installed.length > 0) {
+        select(installed[0].adapter.name);
+        connect();
       }
       return;
     }
@@ -61,8 +62,7 @@ export function ActionModule() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.devnet.solana.com", "confirmed");
-      const walletPubkey = new PublicKey(wallet.account.address);
+      const walletPubkey = publicKey;
 
       let tx;
       if (activeTab === "deposit") {
@@ -83,12 +83,7 @@ export function ActionModule() {
         throw new Error("Simulation failed. Check console for logs.");
       }
 
-      const provider = (window as any).solana;
-      if (!provider?.isPhantom) {
-        throw new Error("Please install Phantom wallet to use this feature.");
-      }
-
-      const { signature } = await provider.signAndSendTransaction(tx);
+      const signature = await sendTransaction(tx, connection);
       console.log("Transaction Sent:", signature);
       
       setAmount("");
@@ -190,7 +185,7 @@ export function ActionModule() {
       {/* Action Button */}
       <button
         onClick={handleAction}
-        disabled={status !== "connected" || (activeTab === "deposit" && isDepositError) || !amount || numAmount <= 0 || loading}
+        disabled={!connected || (activeTab === "deposit" && isDepositError) || !amount || numAmount <= 0 || loading}
         className="w-full group relative flex items-center justify-center gap-2 bg-primary text-background font-bold py-4 rounded-2xl hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
       >
         <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-[0%] transition-transform duration-300"></div>
@@ -202,7 +197,7 @@ export function ActionModule() {
         )}
         
         <span className="relative z-10 uppercase tracking-widest">
-          {status !== "connected" 
+          {!connected 
             ? "Connect Wallet" 
             : loading 
               ? "Confirming..." 
