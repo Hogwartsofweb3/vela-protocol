@@ -4,6 +4,7 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { MetricsBox } from "./components/MetricsBox";
 import { PortfolioView } from "./components/PortfolioView";
 import { ActionModule } from "./components/ActionModule";
+import { AdminTools } from "./components/AdminTools";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -92,6 +93,13 @@ export default function Home() {
           )}
         </div>
 
+        {/* Admin Tools - Only visible to admin wallet */}
+        {connected && <AdminTools />}
+        
+        {/* Footer */}
+        <div className="mt-20 pb-8 text-center text-sm text-muted">
+          <p>© 2026 Vela Protocol. All rights reserved.</p>
+        </div>
       </main>
     </div>
   );
