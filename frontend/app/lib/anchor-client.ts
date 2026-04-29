@@ -40,7 +40,7 @@ export function getYusdcMintPDA() {
 
 // Use official constants from @solana/spl-token — avoids typos
 export const SPL_TOKEN_PROGRAM_ID = TOKEN_PROGRAM_ID;
-export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bQ");
+export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 
 export function getAssociatedTokenAddressSync(
     mint: PublicKey,
