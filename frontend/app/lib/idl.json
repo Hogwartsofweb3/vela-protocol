@@ -63,6 +63,111 @@
       "args": []
     },
     {
+      "name": "create_token_metadata",
+      "discriminator": [
+        221,
+        80,
+        176,
+        37,
+        153,
+        188,
+        160,
+        68
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "Must match aggregator_state.admin"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "aggregator_state",
+          "docs": [
+            "The update-authority stored in the MetadataPointer is aggregator_state"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  103,
+                  114,
+                  101,
+                  103,
+                  97,
+                  116,
+                  111,
+                  114,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "yusdc_mint",
+          "docs": [
+            "can realloc it via CPI without Anchor interfering."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  121,
+                  117,
+                  115,
+                  100,
+                  99,
+                  95,
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_2022_program",
+          "docs": [
+            "The SPL Token-2022 program"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "deposit",
       "discriminator": [
         242,
@@ -433,6 +538,11 @@
         },
         {
           "name": "yusdc_mint",
+          "docs": [
+            "Anchor's `init` + `mint::*` cannot be used because Token-2022 extension",
+            "initialisers MUST run before `InitializeMint2`, but Anchor's constraint",
+            "calls `InitializeMint2` automatically as the last step of `init`."
+          ],
           "writable": true,
           "pda": {
             "seeds": [
