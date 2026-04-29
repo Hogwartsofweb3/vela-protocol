@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { Connection } from "@solana/web3.js";
 import { DEVNET_RPC } from "../lib/constants";
-import { getAggregatorStatePDA } from "../lib/anchor-client";
+import { getAggregatorStatePDA, getYieldOraclePDA, getProgram } from "../lib/anchor-client";
+import * as anchor from "@coral-xyz/anchor";
 import { ShieldCheck, Zap } from "lucide-react";
 
 export function MetricsBox() {
@@ -18,18 +19,34 @@ export function MetricsBox() {
     const fetchMetrics = async () => {
       try {
         const connection = new Connection(DEVNET_RPC, "confirmed");
-        const aggregatorPda = getAggregatorStatePDA();
-        const accountInfo = await connection.getAccountInfo(aggregatorPda);
         
-        if (accountInfo) {
-          // Decoding would happen here via Anchor program.account.aggregatorConfig.fetch
-          // For now, we simulate the state
+        // Dummy provider just to read data
+        const dummyProvider = new anchor.AnchorProvider(connection, {} as any, { commitment: "confirmed" });
+        const program = getProgram(dummyProvider);
+        const oraclePda = getYieldOraclePDA();
+        
+        const oracleData = await program.account.yieldOracle.fetch(oraclePda);
+        
+        const ondoApy = oracleData.ondoApyBps / 100;
+        const kaminoApy = oracleData.kaminoApyBps / 100;
+        
+        setApy(Math.max(ondoApy, kaminoApy));
+        
+        if (ondoApy > kaminoApy) {
+          setStrategy(1); // Ondo
+        } else {
+          setStrategy(0); // Kamino
         }
       } catch (err) {
-        console.error("Error fetching metrics", err);
+        console.error("Error fetching oracle metrics:", err);
       }
     };
+
     fetchMetrics();
+    
+    // Auto-refresh every 30 seconds
+    const intervalId = setInterval(fetchMetrics, 30000);
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -59,10 +76,10 @@ export function MetricsBox() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-sm font-semibold text-success">
-              <ShieldCheck size={16} /> Safe Mode
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-sm font-semibold text-blue-400">
+              <ShieldCheck size={16} /> Kamino K-Lend
             </span>
-            <span className="text-xs text-muted">Capital protected in US Treasuries</span>
+            <span className="text-xs text-muted">Capital deployed to Solana DeFi</span>
           </div>
         )}
       </div>

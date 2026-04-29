@@ -13,6 +13,16 @@ const client = createClient({
   walletConnectors: autoDiscover(),
 });
 
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { useMemo } from "react";
+
 export function Providers({ children }: PropsWithChildren) {
-  return <SolanaProvider client={client}>{children}</SolanaProvider>;
+  const wallets = useMemo(() => [], []);
+  return (
+    <ConnectionProvider endpoint={rpcUrl}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <SolanaProvider client={client}>{children}</SolanaProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
 }
