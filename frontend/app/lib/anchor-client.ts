@@ -1,5 +1,6 @@
 import { Program, Idl, Provider } from "@coral-xyz/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { getAssociatedTokenAddressSync as splGetATA, TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID as SPL_TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import idl from "./idl.json";
 import { PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "./constants";
 
@@ -37,21 +38,17 @@ export function getYusdcMintPDA() {
   )[0];
 }
 
-// We will use standard SPL Token and Token-2022 constants
-export const SPL_TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
-export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
+// Use official constants from @solana/spl-token — avoids typos
+export const SPL_TOKEN_PROGRAM_ID = TOKEN_PROGRAM_ID;
+export const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bQ");
 
 export function getAssociatedTokenAddressSync(
     mint: PublicKey,
     owner: PublicKey,
     allowOwnerOffCurve = false,
-    programId = SPL_TOKEN_PROGRAM_ID,
-    associatedTokenProgramId = ASSOCIATED_TOKEN_PROGRAM_ID
+    tokenProgramId = SPL_TOKEN_PROGRAM_ID,
 ): PublicKey {
-    return PublicKey.findProgramAddressSync(
-        [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
-        associatedTokenProgramId
-    )[0];
+    return splGetATA(mint, owner, allowOwnerOffCurve, tokenProgramId);
 }
 
 export function getVaultUsdcAccountPDA(usdcMint: PublicKey) {
