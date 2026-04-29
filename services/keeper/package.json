@@ -5,11 +5,15 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "set-metadata": "ts-node --transpile-only src/set-yusdc-metadata.ts",
+    "init": "ts-node src/init.ts",
+    "reset": "ts-node src/reset-devnet.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",
     "@solana/web3.js": "^1.95.0",
+    "cross-fetch": "^4.0.0",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

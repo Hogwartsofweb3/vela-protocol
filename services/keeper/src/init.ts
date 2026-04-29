@@ -11,7 +11,7 @@ dotenv.config();
 const TOKEN_2022_PROGRAM_ID = new PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
 
 const RPC_URL = process.env.RPC_URL || "https://api.devnet.solana.com";
-const PROGRAM_ID = new PublicKey("22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP");
+const PROGRAM_ID = new PublicKey("6m9oA9MM7vMEoLfLjc24q3FqZCgGF58hGjSiJmCKtqyN");
 
 async function main() {
   console.log("🌊 Vela Protocol - Initializer");

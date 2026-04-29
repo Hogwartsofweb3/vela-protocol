@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::pubkey;
 
-declare_id!("22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP");
+declare_id!("6m9oA9MM7vMEoLfLjc24q3FqZCgGF58hGjSiJmCKtqyN");
 
 // Configured Keeper Authority (Dedicated keeper keypair — services/keeper/keeper.json)
 pub const KEEPER_AUTHORITY: Pubkey = pubkey!("B4vpi92S581H6NtzM1cUs3vK3mvGd32XXqyd1w3M5n8X");

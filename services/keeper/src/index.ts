@@ -1,3 +1,4 @@
+import "cross-fetch/polyfill";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
 import * as dotenv from "dotenv";
@@ -27,7 +28,7 @@ anchor.setProvider(provider);
 
 // You will need to copy the IDL here or load it dynamically
 // For now, we will mock the program invocation logic
-const VELA_PROGRAM_ID = new PublicKey("22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP");
+const VELA_PROGRAM_ID = new PublicKey("6m9oA9MM7vMEoLfLjc24q3FqZCgGF58hGjSiJmCKtqyN");
 
 async function runKeeperCycle() {
     console.log(`\n[${new Date().toISOString()}] Starting Keeper Cycle...`);

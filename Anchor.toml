@@ -6,12 +6,12 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-vela_protocol = "22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP"
+vela_protocol = "6m9oA9MM7vMEoLfLjc24q3FqZCgGF58hGjSiJmCKtqyN"
 mock_kamino = "MoCKKamino111111111111111111111111111111111"
 mock_ondo = "MoCKondo11111111111111111111111111111111111"
 
 [programs.devnet]
-vela_protocol = "22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP"
+vela_protocol = "6m9oA9MM7vMEoLfLjc24q3FqZCgGF58hGjSiJmCKtqyN"
 mock_kamino = "MoCKKamino111111111111111111111111111111111"
 mock_ondo = "MoCKondo11111111111111111111111111111111111"
 
