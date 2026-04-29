@@ -1,4 +1,5 @@
-import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
+import { Connection, PublicKey, Transaction, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+
 import { getProgram, getAggregatorStatePDA, getUserPositionPDA, getYieldOraclePDA, getYusdcMintPDA, getVaultUsdcAccountPDA, getUserYusdcAccountPDA, SPL_TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "./anchor-client";
 import { DEVNET_RPC, DEVNET_USDC_MINT, TOKEN_2022_PROGRAM_ID } from "./constants";
 import * as anchor from "@coral-xyz/anchor";
@@ -48,6 +49,7 @@ export async function buildDepositTx(
           { pubkey: usdcMint, isSigner: false, isWritable: false },
           { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
           { pubkey: SPL_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+          { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
         ],
         programId: ASSOCIATED_TOKEN_PROGRAM_ID,
         data: Buffer.from([]),
@@ -66,6 +68,7 @@ export async function buildDepositTx(
           { pubkey: yusdcMint, isSigner: false, isWritable: false },
           { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
           { pubkey: new PublicKey(TOKEN_2022_PROGRAM_ID), isSigner: false, isWritable: false },
+          { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
         ],
         programId: ASSOCIATED_TOKEN_PROGRAM_ID,
         data: Buffer.from([]), // 0 byte instruction means create

@@ -1,18 +1,17 @@
 "use client";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { MetricsBox } from "./components/MetricsBox";
 import { PortfolioView } from "./components/PortfolioView";
 import { ActionModule } from "./components/ActionModule";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { wallets, select, connect, disconnect, publicKey, connected, connecting } = useWallet();
+  const { publicKey, connected } = useWallet();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
-  const address = publicKey?.toBase58();
-  const formatAddress = (addr: string) =>
-    `${addr.slice(0, 4)}...${addr.slice(-4)}`;
+
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-bg1 text-foreground flex flex-col items-center">
@@ -39,40 +38,20 @@ export default function Home() {
         </div>
 
         <div>
-          {!mounted ? null : !connected ? (
-            <div className="flex gap-2">
-              {wallets.filter(w => w.readyState === 'Installed').slice(0, 3).map((w) => (
-                <button
-                  key={w.adapter.name}
-                  onClick={async () => {
-                    select(w.adapter.name);
-                    try { await connect(); } catch(e){}
-                  }}
-                  disabled={connecting}
-                  className="rounded-full bg-primary/10 border border-primary/20 px-6 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20"
-                >
-                  {connecting ? "Connecting…" : `Connect ${w.adapter.name}`}
-                </button>
-              ))}
-              {wallets.filter(w => w.readyState === 'Installed').length === 0 && (
-                <a href="https://phantom.app" target="_blank" rel="noreferrer"
-                  className="rounded-full bg-primary/10 border border-primary/20 px-6 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20">
-                  Install Phantom
-                </a>
-              )}
-            </div>
-          ) : (
-             <div className="flex items-center gap-4">
-              <div className="rounded-full border border-border-low bg-card px-4 py-2 font-mono text-sm text-primary shadow-sm">
-                {address ? formatAddress(address) : ""}
-              </div>
-              <button
-                onClick={() => disconnect()}
-                className="rounded-full bg-cream border border-border-low px-4 py-2 text-sm font-medium text-foreground transition hover:bg-cream/80"
-              >
-                Disconnect
-              </button>
-            </div>
+          {!mounted ? null : (
+            <WalletMultiButton
+              style={{
+                background: connected ? 'rgba(0,180,216,0.1)' : 'rgba(0,180,216,0.12)',
+                border: '1px solid rgba(0,180,216,0.3)',
+                borderRadius: '9999px',
+                color: '#00B4D8',
+                fontSize: '14px',
+                fontWeight: '600',
+                padding: '8px 24px',
+                height: 'auto',
+                lineHeight: '1.5',
+              }}
+            />
           )}
         </div>
       </header>

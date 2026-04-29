@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { MIN_DEPOSIT_USDC, DEVNET_USDC_MINT } from "../lib/constants";
 import { ArrowDownCircle, ArrowUpCircle, Loader2 } from "lucide-react";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -9,7 +10,8 @@ import { buildDepositTx, buildWithdrawTx } from "../lib/transaction-builder";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 
 export function ActionModule() {
-  const { publicKey, connected, sendTransaction, connect, select, wallets } = useWallet();
+  const { publicKey, connected, sendTransaction } = useWallet();
+  const { setVisible } = useWalletModal();
   const { connection } = useConnection();
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
   const [amount, setAmount] = useState<string>("");
@@ -46,11 +48,7 @@ export function ActionModule() {
 
   const handleAction = async () => {
     if (!connected || !publicKey) {
-      const installed = wallets.filter(w => w.readyState === 'Installed');
-      if (installed.length > 0) {
-        select(installed[0].adapter.name);
-        connect();
-      }
+      setVisible(true);
       return;
     }
 

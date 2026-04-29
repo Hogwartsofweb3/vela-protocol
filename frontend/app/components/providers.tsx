@@ -14,6 +14,8 @@ const client = createClient({
 });
 
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import "@solana/wallet-adapter-react-ui/styles.css";
 import { useMemo } from "react";
 
 export function Providers({ children }: PropsWithChildren) {
@@ -21,7 +23,9 @@ export function Providers({ children }: PropsWithChildren) {
   return (
     <ConnectionProvider endpoint={rpcUrl}>
       <WalletProvider wallets={wallets} autoConnect>
-        <SolanaProvider client={client}>{children}</SolanaProvider>
+        <WalletModalProvider>
+          <SolanaProvider client={client}>{children}</SolanaProvider>
+        </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );
