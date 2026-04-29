@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Connection } from "@solana/web3.js";
-import { DEVNET_RPC } from "../lib/constants";
+import { MAINNET_RPC } from "../lib/constants";
 import { getAggregatorStatePDA, getYieldOraclePDA, getProgram } from "../lib/anchor-client";
 import * as anchor from "@coral-xyz/anchor";
 import { ShieldCheck, Zap } from "lucide-react";
@@ -18,7 +18,7 @@ export function MetricsBox() {
     // until we wire up the full Anchor Program data fetch.
     const fetchMetrics = async () => {
       try {
-        const connection = new Connection(DEVNET_RPC, "confirmed");
+        const connection = new Connection(MAINNET_RPC, "confirmed");
         
         // Dummy provider just to read data
         const dummyProvider = new anchor.AnchorProvider(connection, {} as any, { commitment: "confirmed" });

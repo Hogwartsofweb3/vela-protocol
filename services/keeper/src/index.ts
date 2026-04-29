@@ -21,7 +21,7 @@ if (!KEEPER_SECRET) {
 const secretArray = new Uint8Array(JSON.parse(KEEPER_SECRET));
 const keeperKeypair = Keypair.fromSecretKey(secretArray);
 
-const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+const connection = new Connection(process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com", "confirmed");
 const wallet = new anchor.Wallet(keeperKeypair);
 const provider = new anchor.AnchorProvider(connection, wallet, { commitment: "confirmed" });
 anchor.setProvider(provider);

@@ -5,8 +5,8 @@ import { PropsWithChildren } from "react";
 
 import { autoDiscover, createClient } from "@solana/client";
 
-// Use Helius Devnet RPC for reliable connections, falling back to public devnet
-const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://api.devnet.solana.com";
+import { MAINNET_RPC } from "../lib/constants";
+const rpcUrl = MAINNET_RPC;
 
 const client = createClient({
   endpoint: rpcUrl,

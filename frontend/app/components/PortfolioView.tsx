@@ -18,7 +18,7 @@ export function PortfolioView() {
     const fetchBalance = async () => {
       if (connected && publicKey) {
         try {
-          const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.devnet.solana.com", "confirmed");
+          const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com", "confirmed");
           const walletPubkey = publicKey;
           const userYusdcAccount = getUserYusdcAccountPDA(walletPubkey);
           
