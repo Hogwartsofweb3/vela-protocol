@@ -23,7 +23,7 @@ export function MetricsBox() {
         const program = getProgram(dummyProvider);
         const oraclePda = getYieldOraclePDA();
 
-        const oracleData = await program.account.yieldOracle.fetch(oraclePda);
+        const oracleData = await (program.account as any).yieldOracle.fetch(oraclePda);
 
         const ondoApy = oracleData.ondoApyBps / 100;
         const kaminoApy = oracleData.kaminoApyBps / 100;

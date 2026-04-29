@@ -16,6 +16,7 @@ export function ActionModule() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isDepositSuccess, setIsDepositSuccess] = useState(false);
 
   const numAmount = parseFloat(amount || "0");
   const isDepositError = activeTab === "deposit" && numAmount > 0 && numAmount < MIN_DEPOSIT_USDC;
@@ -184,6 +185,13 @@ export function ActionModule() {
           </div>
         )}
       </div>
+
+      {/* Success Message */}
+      {isDepositSuccess && (
+        <div className="mb-4 text-xs text-green-400 bg-green-400/10 p-3 rounded-xl border border-green-400/20">
+          ✓ Transaction confirmed! Your yUSDC is now earning yield.
+        </div>
+      )}
 
       {/* Error Message */}
       {errorMsg && (

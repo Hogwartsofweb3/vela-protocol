@@ -38,7 +38,7 @@ export function PortfolioView() {
           const userPositionPda = getUserPositionPDA(walletPubkey);
           
           try {
-            const positionData = await program.account.userPosition.fetch(userPositionPda);
+            const positionData = await (program.account as any).userPosition.fetch(userPositionPda);
             const activeDepositUi = positionData.activeDeposit.toNumber() / 1_000_000;
             // Earned = current value - active deposit
             // For simplicity in the UI right now we just show a static yield since IBT logic is complex to decode purely on frontend
