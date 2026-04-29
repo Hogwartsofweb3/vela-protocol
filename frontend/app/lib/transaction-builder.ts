@@ -1,19 +1,31 @@
-import { Connection, PublicKey, Transaction, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
-
-import { getProgram, getAggregatorStatePDA, getUserPositionPDA, getYieldOraclePDA, getYusdcMintPDA, getVaultUsdcAccountPDA, getUserYusdcAccountPDA, SPL_TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "./anchor-client";
-import { DEVNET_RPC, DEVNET_USDC_MINT, TOKEN_2022_PROGRAM_ID } from "./constants";
+import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
+import {
+  createAssociatedTokenAccountIdempotentInstruction,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
+import {
+  getProgram,
+  getAggregatorStatePDA,
+  getUserPositionPDA,
+  getYusdcMintPDA,
+  getVaultUsdcAccountPDA,
+  getUserYusdcAccountPDA,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+} from "./anchor-client";
+import { DEVNET_USDC_MINT, TOKEN_2022_PROGRAM_ID } from "./constants";
 import * as anchor from "@coral-xyz/anchor";
+
+const TOKEN_2022_PROGRAM_PUBKEY = new PublicKey(TOKEN_2022_PROGRAM_ID);
 
 export async function buildDepositTx(
   walletPubkey: PublicKey,
   amount: number,
   connection: Connection
 ): Promise<Transaction> {
-  // Use a dummy wallet for the provider just to get the instructions
   const dummyProvider = new anchor.AnchorProvider(connection, {} as any, {});
   const program = getProgram(dummyProvider);
 
-  const amountBn = new anchor.BN(amount * 1_000_000); // 6 decimals
+  const amountBn = new anchor.BN(Math.floor(amount * 1_000_000)); // 6 decimals
 
   const usdcMint = new PublicKey(DEVNET_USDC_MINT);
   const aggregatorState = getAggregatorStatePDA();
@@ -21,74 +33,67 @@ export async function buildDepositTx(
   const vaultUsdcAccount = getVaultUsdcAccountPDA(usdcMint);
   const yusdcMint = getYusdcMintPDA();
   const userUsdcAccount = anchor.utils.token.associatedAddress({
-      mint: usdcMint,
-      owner: walletPubkey
+    mint: usdcMint,
+    owner: walletPubkey,
   });
   const userYusdcAccount = getUserYusdcAccountPDA(walletPubkey);
 
   const tx = new Transaction();
 
-  const yusdcAccountInfoPromise = connection.getAccountInfo(userYusdcAccount);
-  const userPositionInfoPromise = connection.getAccountInfo(userPosition);
-  const vaultUsdcAccountInfoPromise = connection.getAccountInfo(vaultUsdcAccount);
-  
-  const [yusdcAccountInfo, userPositionInfo, vaultUsdcAccountInfo] = await Promise.all([
-    yusdcAccountInfoPromise, 
-    userPositionInfoPromise,
-    vaultUsdcAccountInfoPromise
-  ]);
+  // ── 1. Idempotent: create Vault USDC ATA (no-op if already exists)
+  tx.add(
+    createAssociatedTokenAccountIdempotentInstruction(
+      walletPubkey,       // payer
+      vaultUsdcAccount,   // ATA address
+      aggregatorState,    // owner (PDA, off-curve)
+      usdcMint,           // mint
+      TOKEN_PROGRAM_ID,   // token program
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    )
+  );
 
-  // Inject create Vault ATA if it doesn't exist (happens on very first deposit to protocol)
-  if (!vaultUsdcAccountInfo) {
-    tx.add(
-      new anchor.web3.TransactionInstruction({
-        keys: [
-          { pubkey: walletPubkey, isSigner: true, isWritable: true },
-          { pubkey: vaultUsdcAccount, isSigner: false, isWritable: true },
-          { pubkey: aggregatorState, isSigner: false, isWritable: false },
-          { pubkey: usdcMint, isSigner: false, isWritable: false },
-          { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-          { pubkey: SPL_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-          { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-        ],
-        programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-        data: Buffer.from([]),
-      })
-    );
+  // ── 2. Idempotent: create User yUSDC ATA (Token-2022, no-op if already exists)
+  tx.add(
+    createAssociatedTokenAccountIdempotentInstruction(
+      walletPubkey,               // payer
+      userYusdcAccount,           // ATA address
+      walletPubkey,               // owner
+      yusdcMint,                  // mint
+      TOKEN_2022_PROGRAM_PUBKEY,  // token-2022 program
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    )
+  );
+
+  // ── 3. Idempotent: create user Position PDA (safe to re-include)
+  try {
+    const userPositionInfo = await connection.getAccountInfo(userPosition);
+    if (!userPositionInfo) {
+      const createPosIx = await program.methods
+        .createPosition()
+        .accounts({
+          user: walletPubkey,
+          userPosition,
+          systemProgram: SystemProgram.programId,
+        })
+        .instruction();
+      tx.add(createPosIx);
+    }
+  } catch {
+    // If RPC fails, include the instruction anyway (program will no-op if already exists)
+    try {
+      const createPosIx = await program.methods
+        .createPosition()
+        .accounts({
+          user: walletPubkey,
+          userPosition,
+          systemProgram: SystemProgram.programId,
+        })
+        .instruction();
+      tx.add(createPosIx);
+    } catch {}
   }
 
-  if (!yusdcAccountInfo) {
-    // Instruction to create ATA for Token-2022
-    tx.add(
-      new anchor.web3.TransactionInstruction({
-        keys: [
-          { pubkey: walletPubkey, isSigner: true, isWritable: true },
-          { pubkey: userYusdcAccount, isSigner: false, isWritable: true },
-          { pubkey: walletPubkey, isSigner: false, isWritable: false },
-          { pubkey: yusdcMint, isSigner: false, isWritable: false },
-          { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-          { pubkey: new PublicKey(TOKEN_2022_PROGRAM_ID), isSigner: false, isWritable: false },
-          { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-        ],
-        programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-        data: Buffer.from([]), // 0 byte instruction means create
-      })
-    );
-  }
-
-  // Inject create_position instruction if the user position doesn't exist yet
-  if (!userPositionInfo) {
-    const createPosIx = await program.methods
-      .createPosition()
-      .accounts({
-        user: walletPubkey,
-        userPosition: userPosition,
-        systemProgram: SystemProgram.programId,
-      })
-      .instruction();
-    tx.add(createPosIx);
-  }
-
+  // ── 4. The actual deposit instruction
   const ix = await program.methods
     .deposit(amountBn)
     .accounts({
@@ -101,8 +106,8 @@ export async function buildDepositTx(
       yusdcMint,
       userYusdcAccount,
       systemProgram: SystemProgram.programId,
-      tokenProgram: SPL_TOKEN_PROGRAM_ID,
-      token2022Program: new PublicKey(TOKEN_2022_PROGRAM_ID),
+      tokenProgram: TOKEN_PROGRAM_ID,
+      token2022Program: TOKEN_2022_PROGRAM_PUBKEY,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
     })
     .instruction();
@@ -124,8 +129,8 @@ export async function buildWithdrawTx(
   const vaultUsdcAccount = getVaultUsdcAccountPDA(usdcMint);
   const yusdcMint = getYusdcMintPDA();
   const userUsdcAccount = anchor.utils.token.associatedAddress({
-      mint: usdcMint,
-      owner: walletPubkey
+    mint: usdcMint,
+    owner: walletPubkey,
   });
   const userYusdcAccount = getUserYusdcAccountPDA(walletPubkey);
 
@@ -143,8 +148,8 @@ export async function buildWithdrawTx(
       yusdcMint,
       userYusdcAccount,
       systemProgram: SystemProgram.programId,
-      tokenProgram: SPL_TOKEN_PROGRAM_ID,
-      token2022Program: new PublicKey(TOKEN_2022_PROGRAM_ID),
+      tokenProgram: TOKEN_PROGRAM_ID,
+      token2022Program: TOKEN_2022_PROGRAM_PUBKEY,
     })
     .instruction();
 
