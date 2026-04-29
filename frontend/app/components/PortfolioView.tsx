@@ -1,13 +1,14 @@
 "use client";
 
-import { useWalletConnection } from "@solana/react-hooks";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { getUserYusdcAccountPDA } from "../lib/anchor-client";
+import { getUserYusdcAccountPDA, getUserPositionPDA, getProgram } from "../lib/anchor-client";
+import * as anchor from "@coral-xyz/anchor";
 
 export function PortfolioView() {
-  const { status, wallet } = useWalletConnection();
+  const { connected, publicKey } = useWallet();
   const [balance, setBalance] = useState(0);
   const [earned, setEarned] = useState(0);
 
@@ -15,18 +16,37 @@ export function PortfolioView() {
     let mounted = true;
 
     const fetchBalance = async () => {
-      if (status === "connected" && wallet) {
+      if (connected && publicKey) {
         try {
           const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.devnet.solana.com", "confirmed");
-          const walletPubkey = new PublicKey(wallet.account.address);
+          const walletPubkey = publicKey;
           const userYusdcAccount = getUserYusdcAccountPDA(walletPubkey);
           
-          const balanceObj = await connection.getTokenAccountBalance(userYusdcAccount);
-          if (mounted && balanceObj.value.uiAmount !== null) {
-            setBalance(balanceObj.value.uiAmount);
-            // Simulated earned amount based on dummy tracked data (since UserPosition isn't fully decoded yet)
-            setEarned(balanceObj.value.uiAmount * 0.005);
+          let currentBalance = 0;
+          try {
+            const balanceObj = await connection.getTokenAccountBalance(userYusdcAccount);
+            currentBalance = balanceObj.value.uiAmount || 0;
+          } catch(e) { /* ATA not found */ }
+          
+          if (mounted) {
+             setBalance(currentBalance);
           }
+
+          // Fetch actual UserPosition
+          const dummyProvider = new anchor.AnchorProvider(connection, {} as any, { commitment: "confirmed" });
+          const program = getProgram(dummyProvider);
+          const userPositionPda = getUserPositionPDA(walletPubkey);
+          
+          try {
+            const positionData = await program.account.userPosition.fetch(userPositionPda);
+            const activeDepositUi = positionData.activeDeposit.toNumber() / 1_000_000;
+            // Earned = current value - active deposit
+            // For simplicity in the UI right now we just show a static yield since IBT logic is complex to decode purely on frontend
+            if (mounted) setEarned(currentBalance > 0 ? (currentBalance - activeDepositUi) : 0);
+          } catch (e) {
+            if (mounted) setEarned(0);
+          }
+
         } catch (e) {
           // ATA likely doesn't exist yet
           if (mounted) {
@@ -45,9 +65,9 @@ export function PortfolioView() {
     fetchBalance();
     
     return () => { mounted = false; };
-  }, [status, wallet]);
+  }, [connected, publicKey]);
 
-  if (status !== "connected") return null;
+  if (!connected) return null;
 
   return (
     <div className="w-full bg-card border border-border-low rounded-2xl p-6 md:p-8 shadow-xl mt-8">
