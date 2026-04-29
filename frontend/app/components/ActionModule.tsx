@@ -74,17 +74,17 @@ export function ActionModule() {
       tx.recentBlockhash = latestBlockhash.blockhash;
       tx.feePayer = walletPubkey;
 
-      console.log("Simulating transaction for debugging...");
+      console.log("Simulating transaction...");
       const simRes = await connection.simulateTransaction(tx);
       console.log("Simulation Result:", simRes.value);
       if (simRes.value.err) {
-        const logs = simRes.value.logs?.join(" ") || "";
-        // Check for common "not yet initialized" errors and give a helpful message
-        if (logs.includes("Invalid Mint") || logs.includes("0x5") || logs.includes("AccountNotInitialized")) {
-          throw new Error("The Vela vault hasn't been initialized on Devnet yet. Run the initialization script first.");
-        }
-        console.error("Simulation Error Logs:", simRes.value.logs);
-        throw new Error("Simulation failed. Check console for logs.");
+        const logs = simRes.value.logs || [];
+        console.error("Simulation Error Logs:", logs);
+        // Find the most useful log line (first Program error log)
+        const errorLog = logs.find(l => l.includes("Error") || l.includes("failed") || l.includes("0x")) 
+          || logs[logs.length - 1] 
+          || JSON.stringify(simRes.value.err);
+        throw new Error(`Sim failed: ${errorLog}`);
       }
 
       const signature = await sendTransaction(tx, connection);

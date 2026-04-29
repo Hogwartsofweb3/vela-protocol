@@ -1,5 +1,5 @@
 {
-  "address": "22jxKPxpHpHPA1aXjczuyVwVj3GPS5CBKz98dQNPAGjP",
+  "address": "6m9oA9MM7vMEoLfLjc24q3FqZCgGF58hGjSiJmCKtqyN",
   "metadata": {
     "name": "vela_protocol",
     "version": "0.1.0",
@@ -349,7 +349,7 @@
         },
         {
           "name": "associated_token_program",
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bQ"
         }
       ],
       "args": [
@@ -917,7 +917,7 @@
         },
         {
           "name": "associated_token_program",
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe1bQ"
         }
       ],
       "args": [
