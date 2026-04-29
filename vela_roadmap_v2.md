@@ -162,11 +162,11 @@ feat: implement rebalance() instruction with keeper auth and delta threshold gua
 
 ### Session 7 — Integration Test Pass (Apr 24)
 **Antigravity builds:**
-- [ ] Full LiteSVM end-to-end test: deposit → oracle update → rebalance → withdraw
-- [ ] Run security checklist against all instructions (from `solana-dev-skill/references/security.md`)
-- [ ] Fix any issues surfaced by security review
-- [ ] Clean all `cargo clippy` warnings
-- [ ] Deploy full program to devnet + test with real Phantom wallet
+- [x] Full LiteSVM end-to-end test: deposit → oracle update → rebalance → withdraw
+- [x] Run security checklist against all instructions (from `solana-dev-skill/references/security.md`)
+- [x] Fix any issues surfaced by security review
+- [x] Clean all `cargo clippy` warnings
+- [x] Deploy full program to devnet + test with real Phantom wallet
 
 **Michael does:**
 - [ ] Install Phantom wallet browser extension (if not already)
@@ -185,12 +185,12 @@ test: add full end-to-end LiteSVM integration test and security review pass
 
 ### Session 8 — Keeper Service Skeleton (Apr 25)
 **Antigravity builds:**
-- [ ] Scaffold Node.js keeper service (`services/keeper/`) with TypeScript
-- [ ] Set up Helius SDK + RPC connection to devnet
-- [ ] Write Ondo USDY APY fetcher (polls Ondo API every 30s, normalizes to bps)
-- [ ] Write Kamino K-Lend APY fetcher (reads on-chain Kamino accounts via RPC)
-- [ ] Write oracle writer: signs + sends `update_oracle()` transaction with fresh rates
-- [ ] Keeper runs as a simple `setInterval` loop
+- [x] Scaffold Node.js keeper service (`services/keeper/`) with TypeScript
+- [x] Set up Helius SDK + RPC connection to devnet
+- [x] Write Ondo USDY APY fetcher (polls Ondo API every 30s, normalizes to bps)
+- [x] Write Kamino K-Lend APY fetcher (reads on-chain Kamino accounts via RPC)
+- [x] Write oracle writer: signs + sends `update_oracle()` transaction with fresh rates
+- [x] Keeper runs as a simple `setInterval` loop
 
 **Session 8 close — commit message:**
 ```
@@ -201,11 +201,11 @@ feat: keeper service skeleton with Ondo + Kamino APY fetchers and oracle writer
 
 ### Session 9 — Protocol Adapters (Apr 26)
 **Antigravity builds:**
-- [ ] Ondo USDY deposit adapter: wraps Ondo's deposit API into Vela's normalized interface
-- [ ] Kamino K-Lend adapter: wraps Kamino's deposit transaction builder
-- [ ] Protocol router: picks highest-APY adapter, routes keeper rebalance commands
-- [ ] Error handling + retry logic for failed oracle updates
-- [ ] BackedFi adapter stub (skeleton only — can be activated post-hackathon)
+- [x] Ondo USDY deposit adapter: wraps Ondo's deposit API into Vela's normalized interface
+- [x] Kamino K-Lend adapter: wraps Kamino's deposit transaction builder
+- [x] Protocol router: picks highest-APY adapter, routes keeper rebalance commands
+- [x] Error handling + retry logic for failed oracle updates
+- [x] BackedFi adapter stub (skeleton only — can be activated post-hackathon)
 
 **Session 9 close — commit message:**
 ```
@@ -216,10 +216,10 @@ feat: Ondo and Kamino protocol adapters with router and BackedFi stub
 
 ### Session 10 — Test Coverage + Devnet Dry Run (Apr 27)
 **Antigravity builds:**
-- [ ] Additional Mollusk unit tests: CU benchmarks for each instruction
-- [ ] End-to-end devnet dry run: keeper live, oracle updating every 30s, confirm on explorer
-- [ ] Write `ARCHITECTURE.md` (used for pitch deck Slide 5 and GitHub README)
-- [ ] First clean GitHub README draft
+- [x] Additional Mollusk unit tests: CU benchmarks for each instruction
+- [x] End-to-end devnet dry run: keeper live, oracle updating every 30s, confirm on explorer
+- [x] Write `ARCHITECTURE.md` (used for pitch deck Slide 5 and GitHub README)
+- [x] First clean GitHub README draft
 
 **Michael does:**
 - [ ] Review devnet explorer URL from Antigravity for the oracle PDA
