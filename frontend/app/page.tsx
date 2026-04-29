@@ -1,16 +1,19 @@
 "use client";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { MetricsBox } from "./components/MetricsBox";
 import { PortfolioView } from "./components/PortfolioView";
 import { ActionModule } from "./components/ActionModule";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, disconnect } = useWallet();
+  const { setVisible } = useWalletModal();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
+  const address = publicKey?.toBase58();
+  const shortAddress = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : "";
 
 
   return (
@@ -38,20 +41,25 @@ export default function Home() {
         </div>
 
         <div>
-          {!mounted ? null : (
-            <WalletMultiButton
-              style={{
-                background: connected ? 'rgba(0,180,216,0.1)' : 'rgba(0,180,216,0.12)',
-                border: '1px solid rgba(0,180,216,0.3)',
-                borderRadius: '9999px',
-                color: '#00B4D8',
-                fontSize: '14px',
-                fontWeight: '600',
-                padding: '8px 24px',
-                height: 'auto',
-                lineHeight: '1.5',
-              }}
-            />
+          {!mounted ? null : !connected ? (
+            <button
+              onClick={() => setVisible(true)}
+              className="rounded-full bg-primary/10 border border-primary/30 px-6 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20 active:scale-95"
+            >
+              Connect Wallet
+            </button>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="rounded-full border border-border-low bg-card px-4 py-2 font-mono text-sm text-primary shadow-sm">
+                {shortAddress}
+              </div>
+              <button
+                onClick={() => disconnect()}
+                className="rounded-full bg-card border border-border-low px-4 py-2 text-sm font-medium text-muted transition hover:text-foreground hover:border-primary/30"
+              >
+                Disconnect
+              </button>
+            </div>
           )}
         </div>
       </header>

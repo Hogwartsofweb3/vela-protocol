@@ -201,7 +201,7 @@ export function ActionModule() {
       {/* Action Button */}
       <button
         onClick={handleAction}
-        disabled={!connected || (activeTab === "deposit" && isDepositError) || !amount || numAmount <= 0 || loading}
+        disabled={loading || (connected && ((activeTab === "deposit" && isDepositError) || !amount || numAmount <= 0))}
         className="w-full group relative flex items-center justify-center gap-2 bg-primary text-background font-bold py-4 rounded-2xl hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
       >
         <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-[0%] transition-transform duration-300"></div>
