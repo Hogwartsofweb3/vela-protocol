@@ -67,7 +67,7 @@ export function ActionModule() {
       if (activeTab === "deposit") {
         tx = await buildDepositTx(walletPubkey, numAmount, connection);
       } else {
-        tx = await buildWithdrawTx(walletPubkey, connection);
+        tx = await buildWithdrawTx(walletPubkey, numAmount, connection);
       }
 
       const latestBlockhash = await connection.getLatestBlockhash("confirmed");

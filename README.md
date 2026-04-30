@@ -1,102 +1,71 @@
-# 🌌 Vela Protocol
+# Vela Protocol ⛵
 
-> **Institutional-Grade Real World Asset (RWA) Yield Aggregator on Solana.**
+> **One deposit. Every RWA yield on Solana, auto-compounded.**
 
-Vela Protocol is a non-custodial smart contract system that automatically routes stablecoin deposits to the highest-yielding RWA platforms (like Ondo Finance) and DeFi lending markets (like Kamino). 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
+[![Solana](https://img.shields.io/badge/Solana-Devnet-blueviolet)](#)
 
-Built for the **Colosseum Frontier Hackathon (2026)**.
+Vela is an institutional-grade Real World Asset (RWA) aggregator built on Solana. We automatically route stablecoin liquidity to the highest-yielding RWA protocols (like Ondo, Kamino, and BackedFi) while abstracting the complexity into a single, composable Token-2022 receipt: **yUSDC**.
 
-🎥 **[Watch the 2-Minute Demo Video (Loom)](#)**  
-🌐 **[Try the Live Dashboard (Devnet)](#)**
+Submitted for **Colosseum Frontier 2026**.
 
----
+## 🛑 The Problem
 
-## ⚡ The Problem & Solution
-While tokenized Treasuries (like BUIDL and USDY) offer safe, predictable yield, their rates are static. Meanwhile, DeFi lending protocols offer higher, dynamic yields that fluctuate based on market demand. 
+The tokenized treasury market on Solana is fragmented. To earn optimal RWA yield today, treasuries and DAOs must manually manage 4+ separate positions across different issuers—each with varying redemption windows, smart contract risks, and zero composability. 
 
-**Vela combines both.** 
-Users deposit USDC into a single, seamless vault. Off-chain intelligence monitors global rates. When DeFi yields spike, Vela automatically rebalances the vault to capture the premium. When DeFi yields drop, Vela retreats to the safety of US Treasuries. 
+**There is no Jupiter for RWA yield.**
 
-One deposit. Maximum risk-adjusted yield. Zero manual management.
+## 💡 The Solution
 
----
+**Vela.** A single interface for institutional yield.
+
+1. **Deposit USDC:** Receive `yUSDC` (a Token-2022 receipt).
+2. **Auto-Routing:** Vela's smart contract instantly routes liquidity to the highest-yielding verified RWA protocol.
+3. **Safety Tripwire:** If yields drop below our 3.5% threshold, our decentralized Keeper Network automatically rotates funds back to US Treasuries. Total peace of mind.
 
 ## 🏗️ Architecture
-Vela operates on a robust 3-layer architecture:
-1. **Smart Contracts (Anchor):** Non-custodial vaults, mathematical proofs, and Token-2022 Interest-Bearing Mints.
-2. **Intelligence Layer (Node.js Keeper):** An off-chain router that evaluates live APYs from Ondo and Kamino and commands the vault to rebalance.
-3. **Application Layer (Next.js):** A blazing-fast, consumer-friendly dashboard for deposits and analytics.
 
-```mermaid
-graph TD
-    User[User Wallet] -- Deposits USDC --> Vault[Vela Vault PDA]
-    Vault -- Mints yUSDC --> User
-    
-    Keeper[Off-chain Keeper] -- Fetches Live APY --> Oracles(Ondo & Kamino)
-    Keeper -- Updates --> YieldOracle[Yield Oracle PDA]
-    YieldOracle -- Triggers Rebalance --> Vault
-    
-    Vault -- Deploys USDC --> Strategy1(Ondo USDY)
-    Vault -- Deploys USDC --> Strategy2(Kamino JLP)
-    
-    style User fill:#0A0F1E,stroke:#00B4D8,stroke-width:2px,color:#F0F4FF
-    style Vault fill:#0D1326,stroke:#22C55E,stroke-width:2px,color:#F0F4FF
-    style Keeper fill:#0D1326,stroke:#F59E0B,stroke-width:2px,color:#F0F4FF
-```
+Vela is built for maximum security and composability:
 
-*For a deep dive into the technical design, read our [Architecture Overview](ARCHITECTURE.md).*
+*   **Anchor Smart Contract:** Non-custodial vault holding deposits. User funds are never touched.
+*   **Token-2022:** `yUSDC` utilizes the Token-2022 standard for future-proof features (transfer hooks, metadata).
+*   **Keeper Network:** Off-chain TypeScript agents monitor live APYs and trigger on-chain rebalances when thresholds are met.
+*   **Next.js Frontend:** A high-contrast, institutional dashboard leveraging the Solana Wallet Adapter.
 
----
-
-## 🚀 Quick Start (Development)
+## 🚀 Quick Start (Local Development)
 
 ### Prerequisites
-- [Rust & Cargo](https://rustup.rs/)
-- [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
-- [Anchor Framework](https://www.anchor-lang.com/docs/installation)
-- [Node.js & npm](https://nodejs.org/en/download/)
+*   Node.js v18+
+*   Rust & Cargo
+*   Solana CLI
 
-### 1. Build the Smart Contracts
+### 1. Smart Contract
 ```bash
-# Compile the Anchor program
-anchor build
-
-# Sync the IDL and types
-npm run build
+cd programs/vela_protocol
+cargo build-sbf
 ```
 
-### 2. Run the Test Suite
-The protocol is heavily guarded against math overflows and oracle manipulation.
+### 2. Frontend Dashboard
 ```bash
-# Run the integration test suite
-anchor test
+cd frontend
+npm install
+npm run dev
 ```
+Navigate to `http://localhost:3000` to interact with the Devnet-deployed contract.
 
-### 3. Start the Keeper Service
-The off-chain intelligence engine requires a funded devnet wallet.
+### 3. Keeper Network
 ```bash
 cd services/keeper
 npm install
-
-# Generate a local keypair for the keeper
-solana-keygen new -o keeper.json
-
-# Airdrop devnet SOL to pay for transactions
-solana airdrop 2 $(solana-keygen pubkey keeper.json)
-
-# Start the routing engine
-npm run dev
+npx tsx src/init.ts # Triggers oracle updates and rebalancing
 ```
 
----
+## 👥 The Team
 
-## 🔒 Security
-Vela was built with an "institutional-first" mindset.
-- **Math Overflows:** All mathematical operations use strict `checked_add`/`checked_sub` guards.
-- **Oracle Staleness:** The protocol completely rejects any yield data older than 60 seconds.
-- **Withdrawal Delays:** 1-epoch withdrawal minimums prevent flash-loan manipulation.
+We are a lean, relentlessly resourceful team building the foundational liquidity layer for the next trillion dollars of tokenized assets.
 
----
+*   **Michael Okoro** (@Hogwartsofweb3) - Founder & Product Director
+*   **Antigravity** - Agentic Developer (Architecture, Rust/Anchor, TypeScript)
 
-## 📜 License
-MIT License. See [LICENSE](LICENSE) for details.
+*Built end-to-end in 7 days via an Agentic Development Model.*

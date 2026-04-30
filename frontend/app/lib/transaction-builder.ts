@@ -118,6 +118,7 @@ export async function buildDepositTx(
 
 export async function buildWithdrawTx(
   walletPubkey: PublicKey,
+  amount: number,
   connection: Connection
 ): Promise<Transaction> {
   const dummyProvider = new anchor.AnchorProvider(connection, {} as any, {});
@@ -137,7 +138,7 @@ export async function buildWithdrawTx(
   const tx = new Transaction();
 
   const ix = await program.methods
-    .withdraw()
+    .withdraw(new anchor.BN(amount * 1_000_000))
     .accounts({
       user: walletPubkey,
       aggregatorState,

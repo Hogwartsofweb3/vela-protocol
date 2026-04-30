@@ -62,8 +62,8 @@ pub fn handle_create_token_metadata(
         &ctx.accounts.token_2022_program.key(), // token program (Token-2022)
         &ctx.accounts.yusdc_mint.key(),         // mint (= metadata account)
         &ctx.accounts.aggregator_state.key(),   // update authority (our PDA)
-        &ctx.accounts.yusdc_mint.key(),         // mint authority (same PDA, signed via signer_seeds)
-        &ctx.accounts.admin.key(),              // payer for realloc lamports
+        &ctx.accounts.yusdc_mint.key(),         // mint (= mint account)
+        &ctx.accounts.aggregator_state.key(),   // mint authority (PDA signs for this)
         name.clone(),
         symbol.clone(),
         uri.clone(),
@@ -73,8 +73,8 @@ pub fn handle_create_token_metadata(
         &ix,
         &[
             ctx.accounts.yusdc_mint.to_account_info(),        // mint / metadata account
-            ctx.accounts.aggregator_state.to_account_info(),  // update authority (signer via PDA)
-            ctx.accounts.admin.to_account_info(),             // payer
+            ctx.accounts.aggregator_state.to_account_info(),  // update / mint authority (signer via PDA)
+            ctx.accounts.admin.to_account_info(),             // payer for realloc lamports
             ctx.accounts.system_program.to_account_info(),    // system program (for realloc)
         ],
         signer_seeds,

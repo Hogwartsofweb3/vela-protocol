@@ -38,8 +38,11 @@ const TOKEN_URI    =
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  // 1. Load the admin wallet (~/.config/solana/id.json)
-  const solanaKeyPath = path.join(os.homedir(), ".config", "solana", "id.json");
+  // 1. Load the admin wallet (~/.config/solana/id.json or WSL path)
+  let solanaKeyPath = path.join(os.homedir(), ".config", "solana", "id.json");
+  if (!fs.existsSync(solanaKeyPath)) {
+    solanaKeyPath = "\\\\wsl$\\Ubuntu\\home\\hogwartsofweb3\\.config\\solana\\id.json";
+  }
   if (!fs.existsSync(solanaKeyPath)) {
     console.error(`\n❌  No Solana CLI wallet found at: ${solanaKeyPath}`);
     console.error(`   Run: solana-keygen new`);
