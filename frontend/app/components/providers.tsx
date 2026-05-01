@@ -24,15 +24,20 @@ import {
   TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import { SolanaMobileWalletAdapter } from "@solana-mobile/wallet-adapter-mobile";
+import { WalletConnectWalletAdapter } from "@solana/wallet-adapter-walletconnect";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { useMemo } from "react";
 
 export function Providers({ children }: PropsWithChildren) {
-  const wallets = useMemo(
-    () => [
+  const wallets = useMemo(() => {
+    const list = [
       new SolanaMobileWalletAdapter({
         appIdentity: { name: "Vela Protocol", uri: "https://vela-protocol.vercel.app", icon: "favicon.ico" },
         authorizationResultCache: undefined,
+      }),
+      new WalletConnectWalletAdapter({
+        network: "devnet" as any,
+        options: { projectId: "e899c0d03fd9ea2bf4fb2639a032d8ed" },
       }),
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
@@ -40,9 +45,22 @@ export function Providers({ children }: PropsWithChildren) {
       new LedgerWalletAdapter(),
       new CoinbaseWalletAdapter(),
       new TorusWalletAdapter(),
-    ],
-    []
-  );
+    ];
+
+    // Force non-detected wallets to immediately redirect to their download URL
+    // instead of showing the "Install Wallet" nested modal view.
+    list.forEach((w: any) => {
+      if (w.readyState === "NotDetected") {
+        Object.defineProperty(w, "readyState", { value: "Loadable", writable: true });
+        w.connect = async () => {
+          window.open(w.url, "_blank");
+          throw new Error("Redirecting to wallet download page...");
+        };
+      }
+    });
+
+    return list;
+  }, []);
 
   return (
     <ConnectionProvider endpoint={rpcUrl}>
