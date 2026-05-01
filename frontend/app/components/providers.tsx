@@ -15,11 +15,30 @@ const client = createClient({
 
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+  TrustWalletAdapter,
+  LedgerWalletAdapter,
+  CoinbaseWalletAdapter,
+  TorusWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { useMemo } from "react";
 
 export function Providers({ children }: PropsWithChildren) {
-  const wallets = useMemo(() => [], []);
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+      new TrustWalletAdapter(),
+      new LedgerWalletAdapter(),
+      new CoinbaseWalletAdapter(),
+      new TorusWalletAdapter(),
+    ],
+    []
+  );
+
   return (
     <ConnectionProvider endpoint={rpcUrl}>
       <WalletProvider wallets={wallets} autoConnect>

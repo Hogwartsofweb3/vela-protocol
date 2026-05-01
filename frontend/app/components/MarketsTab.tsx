@@ -100,16 +100,16 @@ export function MarketsTab() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-border-low overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded-2xl border border-border-low overflow-x-auto overflow-y-hidden">
+        <table className="w-full text-sm min-w-[700px]">
           <thead>
             <tr className="bg-card border-b border-border-low">
               <th className="text-left px-5 py-3.5 text-muted font-medium">Protocol</th>
               <th className="text-left px-4 py-3.5 text-muted font-medium">Token</th>
               <th className="text-right px-4 py-3.5 text-muted font-medium">Current APY</th>
-              <th className="text-right px-4 py-3.5 text-muted font-medium hidden md:table-cell">7D Trend</th>
-              <th className="text-right px-4 py-3.5 text-muted font-medium hidden md:table-cell">TVL</th>
-              <th className="text-center px-4 py-3.5 text-muted font-medium hidden lg:table-cell">Risk</th>
+              <th className="text-right px-4 py-3.5 text-muted font-medium">7D Trend</th>
+              <th className="text-right px-4 py-3.5 text-muted font-medium">TVL</th>
+              <th className="text-center px-4 py-3.5 text-muted font-medium">Risk</th>
               <th className="text-center px-4 py-3.5 text-muted font-medium">Status</th>
             </tr>
           </thead>
@@ -135,17 +135,17 @@ export function MarketsTab() {
                     {p.apy.toFixed(2)}%
                   </span>
                 </td>
-                <td className="px-4 py-4 text-right hidden md:table-cell text-muted tabular-nums text-xs">
+                <td className="px-4 py-4 text-right text-muted tabular-nums text-xs whitespace-nowrap">
                   {p.apy7d.toFixed(2)}%
                   <TrendIcon current={p.apy} prev={p.apy7d} />
                 </td>
-                <td className="px-4 py-4 text-right text-muted hidden md:table-cell">{p.tvl}</td>
-                <td className="px-4 py-4 text-center hidden lg:table-cell">
+                <td className="px-4 py-4 text-right text-muted whitespace-nowrap">{p.tvl}</td>
+                <td className="px-4 py-4 text-center whitespace-nowrap">
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${riskColour[p.risk]}`}>
                     {p.risk}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-center">
+                <td className="px-4 py-4 text-center whitespace-nowrap">
                   {p.routing ? (
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 border border-primary/30 rounded-full px-3 py-1">
                       <Zap className="w-3 h-3" />
