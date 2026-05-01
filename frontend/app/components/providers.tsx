@@ -23,12 +23,17 @@ import {
   CoinbaseWalletAdapter,
   TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
+import { SolanaMobileWalletAdapter } from "@solana-mobile/wallet-adapter-mobile";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { useMemo } from "react";
 
 export function Providers({ children }: PropsWithChildren) {
   const wallets = useMemo(
     () => [
+      new SolanaMobileWalletAdapter({
+        appIdentity: { name: "Vela Protocol", uri: "https://vela-protocol.vercel.app", icon: "favicon.ico" },
+        authorizationResultCache: undefined,
+      }),
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
       new TrustWalletAdapter(),
