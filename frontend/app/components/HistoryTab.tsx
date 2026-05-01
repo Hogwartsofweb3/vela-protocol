@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, ExternalLink, Filter } from "lucide-react";
 
@@ -12,17 +12,17 @@ interface Transaction {
   type: TxType;
   amount?: number;
   signature: string;
-  timestamp: Date;
+  timeAgo: string;
   status: "confirmed" | "pending";
   routedTo?: string;
 }
 
 const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: "1", type: "deposit", amount: 1000, signature: "5xGj3mPq...", timestamp: new Date(Date.now() - 1000 * 60 * 5), status: "confirmed", routedTo: "Ondo USDY" },
-  { id: "2", type: "rebalance", signature: "BJnLFNEVkrsnjF2DXPAtejFMKGz4p6qi7wgXk2ZA5Bx", timestamp: new Date(Date.now() - 1000 * 60 * 12), status: "confirmed", routedTo: "Ondo USDY → Hastra PRIME" },
-  { id: "3", type: "deposit", amount: 500, signature: "9aKm7vNx...", timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), status: "confirmed", routedTo: "Ondo USDY" },
-  { id: "4", type: "withdrawal", amount: 250, signature: "3DP9M5kTu73dUjuVYQqRvU1mga8BB4eH1jCvzaD", timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), status: "confirmed" },
-  { id: "5", type: "rebalance", signature: "2cRq8wKs...", timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), status: "confirmed", routedTo: "Kamino → Ondo USDY" },
+  { id: "1", type: "deposit", amount: 1000, signature: "5xGj3mPq...", timeAgo: "5m ago", status: "confirmed", routedTo: "Ondo USDY" },
+  { id: "2", type: "rebalance", signature: "BJnLFNEVkrsnjF2DXPAtejFMKGz4p6qi7wgXk2ZA5Bx", timeAgo: "12m ago", status: "confirmed", routedTo: "Ondo USDY → Hastra PRIME" },
+  { id: "3", type: "deposit", amount: 500, signature: "9aKm7vNx...", timeAgo: "2h ago", status: "confirmed", routedTo: "Ondo USDY" },
+  { id: "4", type: "withdrawal", amount: 250, signature: "3DP9M5kTu73dUjuVYQqRvU1mga8BB4eH1jCvzaD", timeAgo: "5h ago", status: "confirmed" },
+  { id: "5", type: "rebalance", signature: "2cRq8wKs...", timeAgo: "1d ago", status: "confirmed", routedTo: "Kamino → Ondo USDY" },
 ];
 
 const typeConfig = {
@@ -31,17 +31,16 @@ const typeConfig = {
   rebalance:  { icon: <RefreshCw className="w-4 h-4" />,       label: "Rebalance",  colour: "text-primary bg-primary/10 border-primary/20" },
 };
 
-function timeAgo(date: Date): string {
-  const s = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (s < 60) return `${s}s ago`;
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
-  return `${Math.floor(s / 86400)}d ago`;
-}
-
 export function HistoryTab() {
   const { connected } = useWallet();
   const [filter, setFilter] = useState<FilterType>("all");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   if (!connected) {
     return (
@@ -97,7 +96,7 @@ export function HistoryTab() {
               </div>
               <div className="flex items-center gap-4 text-right">
                 <div>
-                  <div className="text-xs text-muted">{timeAgo(tx.timestamp)}</div>
+                  <div className="text-xs text-muted">{tx.timeAgo}</div>
                   <div className={`text-xs mt-0.5 ${tx.status === "confirmed" ? "text-green-400" : "text-yellow-400"}`}>{tx.status}</div>
                 </div>
                 <a href={`https://solscan.io/tx/${tx.signature}?cluster=devnet`} target="_blank" rel="noopener noreferrer" className="text-muted hover:text-primary transition">

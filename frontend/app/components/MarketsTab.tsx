@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ExternalLink, TrendingUp, TrendingDown, Minus, Zap, Shield, Activity } from "lucide-react";
 
 type RiskTier = "Low" | "Medium" | "High";
@@ -45,12 +45,15 @@ const riskColour: Record<RiskTier, string> = {
 
 export function MarketsTab() {
   const [filter, setFilter] = useState<"all" | "phase1" | "phase2">("all");
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+
+  useEffect(() => {
+    setLastUpdated(new Date().toLocaleTimeString());
+  }, []);
 
   const displayed = PROTOCOLS.filter(p =>
     filter === "all" ? true : filter === "phase1" ? p.phase === 1 : p.phase === 2
   );
-
-  const lastUpdated = new Date().toLocaleTimeString();
 
   return (
     <div className="w-full">
@@ -62,10 +65,12 @@ export function MarketsTab() {
             Real-time APY data from all integrated RWA issuers. Vela routes to the highest yield above the 3.5% floor.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted bg-card border border-border-low rounded-lg px-3 py-2">
-          <Activity className="w-3 h-3 text-primary animate-pulse" />
-          <span>Updated {lastUpdated}</span>
-        </div>
+        {lastUpdated && (
+          <div className="flex items-center gap-2 text-xs text-muted bg-card border border-border-low rounded-lg px-3 py-2">
+            <Activity className="w-3 h-3 text-primary animate-pulse" />
+            <span>Updated {lastUpdated}</span>
+          </div>
+        )}
       </div>
 
       {/* Safety Floor Banner */}
