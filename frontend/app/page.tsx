@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { WaitlistModal } from "./components/WaitlistModal";
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -26,6 +28,7 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-background text-white overflow-x-hidden selection:bg-accent selection:text-black antialiased">
+      <WaitlistModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       {/* 1. Navigation Bar */}
       <nav className="fixed top-0 w-full z-50 bg-[#08090f]/80 backdrop-blur-md border-b border-border transition-all duration-300 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -93,11 +96,7 @@ export default function LandingPage() {
 
           {/* CTA */}
           <button
-            onClick={() =>
-              document
-                .getElementById("early-access")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
+            onClick={() => setModalOpen(true)}
             className="bg-accent text-black font-bold px-8 py-4 rounded-full text-lg hover:scale-105 hover:shadow-[0_0_20px_rgba(0,194,255,0.4)] transition-all duration-200 mb-20"
           >
             Join the Waitlist
@@ -717,26 +716,12 @@ export default function LandingPage() {
             We're building it. Be first when Vela goes live on Solana mainnet.
           </p>
 
-          <form
-            className="flex flex-col sm:flex-row w-full max-w-lg gap-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Subscribed!");
-            }}
-          >
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              required
-              className="flex-1 bg-surface border border-border rounded-full px-6 py-4 text-white placeholder-muted/70 focus:outline-none focus:border-accent/50 transition-colors font-body"
-            />
-            <button
-              type="submit"
-              className="bg-accent text-black font-bold px-8 py-4 rounded-full hover:scale-105 hover:shadow-[0_0_15px_rgba(0,194,255,0.4)] transition-all duration-200 whitespace-nowrap"
+          <button
+              onClick={() => setModalOpen(true)}
+              className="bg-accent text-black font-bold px-10 py-4 rounded-full text-lg hover:scale-105 hover:shadow-[0_0_20px_rgba(0,194,255,0.4)] transition-all duration-200"
             >
-              Join Waitlist
+              Request Early Access
             </button>
-          </form>
         </div>
       </section>
 
