@@ -33,8 +33,7 @@ export function Providers({ children }: PropsWithChildren) {
     const list = [
       new SolanaMobileWalletAdapter({
         appIdentity: { name: "Vela Protocol", uri: "https://vela-protocol.vercel.app", icon: "favicon.ico" },
-        authorizationResultCache: undefined,
-      }),
+      } as any),
       new WalletConnectWalletAdapter({
         network: "devnet" as any,
         options: { projectId: "e899c0d03fd9ea2bf4fb2639a032d8ed" },
