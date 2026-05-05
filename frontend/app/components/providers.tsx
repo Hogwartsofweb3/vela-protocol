@@ -23,21 +23,13 @@ import {
   CoinbaseWalletAdapter,
   TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
-import { SolanaMobileWalletAdapter } from "@solana-mobile/wallet-adapter-mobile";
-import { WalletConnectWalletAdapter } from "@solana/wallet-adapter-walletconnect";
+// Removed Mobile and WalletConnect adapters to fix client-side Vercel error
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { useMemo } from "react";
 
 export function Providers({ children }: PropsWithChildren) {
   const wallets = useMemo(() => {
     const list = [
-      new SolanaMobileWalletAdapter({
-        appIdentity: { name: "Vela Protocol", uri: "https://vela-protocol.vercel.app", icon: "favicon.ico" },
-      } as any),
-      new WalletConnectWalletAdapter({
-        network: "devnet" as any,
-        options: { projectId: "e899c0d03fd9ea2bf4fb2639a032d8ed" },
-      }),
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
       new TrustWalletAdapter(),
