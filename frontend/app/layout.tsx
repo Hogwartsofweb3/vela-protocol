@@ -54,10 +54,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} antialiased`}
+        className="antialiased"
       >
         <ClientProviders>{children}</ClientProviders>
       </body>

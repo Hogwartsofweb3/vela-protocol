@@ -1,18 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --color-background: #08090f;
+  --color-bg1: #08090f;
   --color-surface: #0d1220;
+  --color-card: #0d1220;
   --color-surface-light: #111827;
   --color-accent: #00C2FF;
+  --color-primary: #00C2FF;
   --color-secondary: #F5A623;
   --color-muted: #8B9BB4;
   --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-low: rgba(255, 255, 255, 0.06);
   
-  --font-display: "Outfit", sans-serif;
-  --font-body: "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-display: var(--font-outfit);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-mono);
   
   --animate-dash: dash 20s linear infinite;
   --animate-fade-in-up: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;

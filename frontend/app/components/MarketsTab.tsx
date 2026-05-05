@@ -1,171 +1,244 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink, TrendingUp, TrendingDown, Minus, Zap, Shield, Activity } from "lucide-react";
+import { Circle } from "lucide-react";
 
-type RiskTier = "Low" | "Medium" | "High";
+type SortOption = "APY" | "TVL" | "NAME";
+type StatusType = "Allocated" | "Monitoring" | "Currently Routing";
 
-interface Protocol {
-  name: string;
+interface MarketData {
+  id: string;
+  issuer: string;
+  subtitle: string;
   token: string;
   apy: number;
-  apy7d: number;
-  tvl: string;
-  risk: RiskTier;
-  routing: boolean;
-  issuer: string;
-  phase: number;
+  trend: number;
+  tvl: number; // in millions
+  risk: string;
+  status: StatusType;
 }
 
-const PROTOCOLS: Protocol[] = [
-  { name: "BlackRock BUIDL", token: "BUIDL", apy: 3.53, apy7d: 3.51, tvl: "$231M", risk: "Low", routing: false, issuer: "BlackRock / Securitize", phase: 1 },
-  { name: "Ondo Finance", token: "USDY", apy: 5.20, apy7d: 5.18, tvl: "$182M", risk: "Low", routing: true, issuer: "Ondo Finance", phase: 1 },
-  { name: "Hastra PRIME", token: "PRIME", apy: 7.21, apy7d: 7.05, tvl: "$335M", risk: "Medium", routing: false, issuer: "Hastra", phase: 1 },
-  { name: "Ondo OUSG", token: "OUSG", apy: 3.24, apy7d: 3.26, tvl: "$71.8M", risk: "Low", routing: false, issuer: "Ondo Finance", phase: 1 },
-  { name: "VanEck VBILL", token: "VBILL", apy: 3.53, apy7d: 3.52, tvl: "$13.8M", risk: "Low", routing: false, issuer: "VanEck", phase: 1 },
-  { name: "Kamino Finance", token: "KIMI", apy: 4.45, apy7d: 4.38, tvl: "$2.1B", risk: "Low", routing: false, issuer: "Kamino", phase: 1 },
-  { name: "Apollo ACRED", token: "ACRED", apy: 8.71, apy7d: 8.60, tvl: "$35M", risk: "Medium", routing: false, issuer: "Apollo", phase: 2 },
-  { name: "OnRe ONYC", token: "ONYC", apy: 10.15, apy7d: 9.88, tvl: "$140M", risk: "Medium", routing: false, issuer: "OnRe", phase: 2 },
+const MARKETS: MarketData[] = [
+  { id: "BR", issuer: "BlackRock", subtitle: "Solana • Money Market", token: "BUIDL", apy: 5.10, trend: -0.04, tvl: 350.0, risk: "Low", status: "Allocated" },
+  { id: "CS", issuer: "Credix", subtitle: "Solana • Private Credit", token: "CREDIX", apy: 4.20, trend: 0.07, tvl: 37.5, risk: "Medium", status: "Monitoring" },
+  { id: "FR", issuer: "Franklin Templeton", subtitle: "Solana • Money Market", token: "FOBXX", apy: 4.90, trend: 0.05, tvl: 187.5, risk: "Low", status: "Allocated" },
+  { id: "MP", issuer: "Maple Finance", subtitle: "Solana • Corporate Debt", token: "MPL", apy: 3.50, trend: -0.15, tvl: 50.0, risk: "Medium", status: "Monitoring" },
+  { id: "OD", issuer: "Ondo Finance", subtitle: "Solana • US Treasuries", token: "USDY", apy: 6.10, trend: 0.12, tvl: 425.0, risk: "Low", status: "Currently Routing" },
+  { id: "OE", issuer: "OpenEden", subtitle: "Solana • T-Bills", token: "TBILL", apy: 5.20, trend: 0.09, tvl: 62.5, risk: "Low", status: "Monitoring" },
+  { id: "WT", issuer: "WisdomTree", subtitle: "Solana • US Treasuries", token: "WTSY", apy: 5.00, trend: 0.08, tvl: 125.0, risk: "Low", status: "Monitoring" },
 ];
 
-const FLOOR_BPS = 3.5;
-
-function TrendIcon({ current, prev }: { current: number; prev: number }) {
-  const diff = current - prev;
-  if (diff > 0.05) return <TrendingUp className="inline w-3.5 h-3.5 text-green-400 ml-1" />;
-  if (diff < -0.05) return <TrendingDown className="inline w-3.5 h-3.5 text-red-400 ml-1" />;
-  return <Minus className="inline w-3.5 h-3.5 text-muted ml-1" />;
+function Sparkline({ isPositive }: { isPositive: boolean }) {
+  // A simplified aesthetic sparkline
+  const strokeColor = isPositive ? "#4ade80" : "#f87171";
+  const pathData = isPositive 
+    ? "M 0 15 Q 5 10, 15 12 T 30 5" 
+    : "M 0 5 Q 5 10, 15 12 T 30 15";
+    
+  return (
+    <svg width="30" height="20" viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d={pathData} stroke={strokeColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
 }
 
-const riskColour: Record<RiskTier, string> = {
-  Low: "text-green-400 bg-green-400/10 border-green-400/20",
-  Medium: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
-  High: "text-red-400 bg-red-400/10 border-red-400/20",
-};
-
 export function MarketsTab() {
-  const [filter, setFilter] = useState<"all" | "phase1" | "phase2">("all");
-  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [sortBy, setSortBy] = useState<SortOption>("APY");
+  const [time, setTime] = useState<string>("14:22:07");
 
   useEffect(() => {
-    setLastUpdated(new Date().toLocaleTimeString());
+    // Just a visual clock update
+    const interval = setInterval(() => {
+      setTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  const displayed = PROTOCOLS.filter(p =>
-    filter === "all" ? true : filter === "phase1" ? p.phase === 1 : p.phase === 2
-  );
+  const sortedMarkets = [...MARKETS].sort((a, b) => {
+    if (sortBy === "APY") return b.apy - a.apy;
+    if (sortBy === "TVL") return b.tvl - a.tvl;
+    return a.issuer.localeCompare(b.issuer);
+  });
 
   return (
-    <div className="w-full">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div className="w-full flex flex-col gap-6 animate-fade-in-up">
+      {/* Header Area */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 w-full">
         <div>
-          <h2 className="text-2xl font-semibold text-foreground">Live Yield Markets</h2>
-          <p className="text-sm text-muted mt-1">
-            Real-time APY data from all integrated RWA issuers. Vela routes to the highest yield above the 3.5% floor.
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[10px] font-bold tracking-widest text-primary uppercase">Vela Protocol</span>
+            <span className="text-[10px] text-muted">•</span>
+            <span className="text-[10px] font-bold tracking-widest text-primary uppercase">Devnet</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-semibold font-display text-white mb-1">RWA Market Intelligence</h2>
+          <p className="text-sm text-muted font-body">Live yield feed across all 7 integrated RWA issuers on Solana</p>
+        </div>
+        
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/10">
+            <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(0,194,255,0.8)] animate-pulse"></div>
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Live</span>
+          </div>
+          <p className="text-[11px] font-mono text-muted tracking-wider">
+            Last updated {time} · YieldOracle PDA
           </p>
         </div>
-        {lastUpdated && (
-          <div className="flex items-center gap-2 text-xs text-muted bg-card border border-border-low rounded-lg px-3 py-2">
-            <Activity className="w-3 h-3 text-primary animate-pulse" />
-            <span>Updated {lastUpdated}</span>
+      </div>
+
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+        <div className="glass-card rounded-xl p-5 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider">Avg Market APY</span>
+          <span className="text-3xl font-mono text-primary mt-1">5.24%</span>
+        </div>
+        
+        <div className="glass-card rounded-xl p-5 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider">Floor APY</span>
+          <span className="text-3xl font-mono text-white mt-1">3.5%</span>
+        </div>
+        
+        <div className="glass-card rounded-xl p-5 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-green-400/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider">Best Available</span>
+          <span className="text-3xl font-mono text-green-400 mt-1">6.1%</span>
+        </div>
+        
+        <div className="glass-card rounded-xl p-5 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Market TVL</span>
+          <span className="text-3xl font-mono text-white mt-1">$1.25B</span>
+        </div>
+      </div>
+
+      {/* Filter and Table Section */}
+      <div className="mt-4">
+        {/* Toolbar */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-semibold text-muted/60 uppercase tracking-wider">Sort by :</span>
+            <div className="flex gap-2">
+              {(["APY", "TVL", "NAME"] as SortOption[]).map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setSortBy(option)}
+                  className={`text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full transition-all ${
+                    sortBy === option
+                      ? "border border-primary/50 text-primary bg-primary/5"
+                      : "text-muted hover:text-white"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
           </div>
-        )}
-      </div>
+          <div className="text-xs font-mono text-muted/60 tracking-wider">
+            7 transactions
+          </div>
+        </div>
 
-      {/* Safety Floor Banner */}
-      <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-5 py-3 mb-6">
-        <Shield className="w-4 h-4 text-primary flex-shrink-0" />
-        <p className="text-sm text-primary/80">
-          <span className="font-semibold text-primary">Safety Floor: 3.5% APY.</span>
-          {" "}If the best available yield drops below this threshold, Vela automatically rotates capital back to US Treasuries.
-        </p>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="flex gap-2 mb-6">
-        {(["all", "phase1", "phase2"] as const).map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium border transition ${
-              filter === f
-                ? "bg-primary text-bg1 border-primary"
-                : "bg-card border-border-low text-muted hover:text-foreground"
-            }`}
-          >
-            {f === "all" ? "All Protocols" : f === "phase1" ? "Phase 1 (Active)" : "Phase 2 (Upcoming)"}
-          </button>
-        ))}
-      </div>
-
-      {/* Table */}
-      <div className="rounded-2xl border border-border-low overflow-x-auto overflow-y-hidden">
-        <table className="w-full text-sm min-w-[700px]">
-          <thead>
-            <tr className="bg-card border-b border-border-low">
-              <th className="text-left px-5 py-3.5 text-muted font-medium">Protocol</th>
-              <th className="text-left px-4 py-3.5 text-muted font-medium">Token</th>
-              <th className="text-right px-4 py-3.5 text-muted font-medium">Current APY</th>
-              <th className="text-right px-4 py-3.5 text-muted font-medium">7D Trend</th>
-              <th className="text-right px-4 py-3.5 text-muted font-medium">TVL</th>
-              <th className="text-center px-4 py-3.5 text-muted font-medium">Risk</th>
-              <th className="text-center px-4 py-3.5 text-muted font-medium">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayed.map((p, i) => (
-              <tr
-                key={p.token}
-                className={`border-b border-border-low transition hover:bg-card/50 ${
-                  p.routing ? "bg-primary/5" : ""
-                } ${i === displayed.length - 1 ? "border-b-0" : ""}`}
-              >
-                <td className="px-5 py-4">
-                  <div className="font-medium text-foreground">{p.name}</div>
-                  <div className="text-xs text-muted">{p.issuer}</div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="font-mono text-xs bg-card border border-border-low rounded px-2 py-0.5 text-primary">
-                    {p.token}
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-right">
-                  <span className={`font-semibold tabular-nums ${p.apy >= FLOOR_BPS ? "text-green-400" : "text-red-400"}`}>
-                    {p.apy.toFixed(2)}%
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-right text-muted tabular-nums text-xs whitespace-nowrap">
-                  {p.apy7d.toFixed(2)}%
-                  <TrendIcon current={p.apy} prev={p.apy7d} />
-                </td>
-                <td className="px-4 py-4 text-right text-muted whitespace-nowrap">{p.tvl}</td>
-                <td className="px-4 py-4 text-center whitespace-nowrap">
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${riskColour[p.risk]}`}>
-                    {p.risk}
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-center whitespace-nowrap">
-                  {p.routing ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 border border-primary/30 rounded-full px-3 py-1">
-                      <Zap className="w-3 h-3" />
-                      Routing
-                    </span>
-                  ) : p.phase === 2 ? (
-                    <span className="text-xs text-muted bg-card border border-border-low rounded-full px-3 py-1">Phase 2</span>
-                  ) : (
-                    <span className="text-xs text-muted/60">Available</span>
-                  )}
-                </td>
+        {/* Table */}
+        <div className="glass-card rounded-2xl overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[900px]">
+            <thead>
+              <tr className="border-b border-border-low">
+                <th className="text-[10px] font-bold text-muted uppercase tracking-widest px-6 py-4">Issuer</th>
+                <th className="text-[10px] font-bold text-muted uppercase tracking-widest px-6 py-4">Token</th>
+                <th className="text-[10px] font-bold text-muted uppercase tracking-widest px-6 py-4">Current APY</th>
+                <th className="text-[10px] font-bold text-muted uppercase tracking-widest px-6 py-4">7D Trend</th>
+                <th className="text-[10px] font-bold text-muted uppercase tracking-widest px-6 py-4">TVL on Solana</th>
+                <th className="text-[10px] font-bold text-muted uppercase tracking-widest px-6 py-4">Risk</th>
+                <th className="text-[10px] font-bold text-muted uppercase tracking-widest px-6 py-4 text-right">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border-low">
+              {sortedMarkets.map((market) => (
+                <tr key={market.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded border border-border-low bg-bg1 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold font-mono text-primary">{market.id}</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-sm text-white mb-0.5">{market.issuer}</div>
+                        <div className="text-xs text-muted/60">{market.subtitle}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-mono text-sm text-white">{market.token}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className={`inline-flex px-3 py-1 rounded-full border border-border-low bg-bg1 font-mono text-sm
+                      ${market.apy >= 5.0 ? "text-green-400 border-green-400/30" : "text-secondary border-secondary/30"}
+                    `}>
+                      {market.apy.toFixed(2)}%
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <Sparkline isPositive={market.trend >= 0} />
+                      <span className={`font-mono text-sm ${market.trend >= 0 ? "text-green-400" : "text-red-400"}`}>
+                        {market.trend > 0 ? "+" : ""}{market.trend.toFixed(2)}%
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-mono text-sm text-white">${market.tvl.toFixed(1)}M</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm text-muted">{market.risk}</span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    {market.status === "Currently Routing" ? (
+                      <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-primary/50 bg-primary/10">
+                        <Circle className="w-2 h-2 fill-primary text-primary" />
+                        <span className="text-xs font-semibold text-primary">{market.status}</span>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-border-low bg-bg1">
+                        <span className="text-xs font-medium text-muted/80">{market.status}</span>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <p className="text-xs text-muted mt-4 text-center">
-        APY data sourced from live Keeper oracle. Updates every 30 seconds on-chain.
-      </p>
+      {/* Footer Legend */}
+      <div className="glass-card rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mt-2">
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <span className="text-xs text-muted/80">Data sourced from YieldOracle PDA — updates every block</span>
+          <div className="flex items-center gap-2 md:hidden">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+            <span className="text-[10px] font-bold tracking-widest text-primary uppercase">Live</span>
+          </div>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+          <span className="text-xs font-bold text-muted uppercase tracking-widest hidden md:block">APY Colour Legend:</span>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+              <span className="text-xs text-muted">≥ 5.0%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+              <span className="text-xs text-muted">3.5–5.0%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+              <span className="text-xs text-muted">Below floor</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
