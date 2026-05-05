@@ -1,14 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
-import dynamic from "next/dynamic";
+import { ClientProviders } from "./components/client-providers";
 import "./globals.css";
-
-// Load wallet providers client-side only — prevents SSR crashes on Vercel
-// during static page generation (wallet adapters access browser APIs at init time)
-const Providers = dynamic(
-  () => import("./components/providers").then((m) => m.Providers),
-  { ssr: false }
-);
 
 const inter = Inter({
   variable: "--font-inter",
@@ -66,7 +59,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
   );
