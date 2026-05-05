@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
+import dynamic from "next/dynamic";
 import "./globals.css";
-import { Providers } from "./components/providers";
+
+// Load wallet providers client-side only — prevents SSR crashes on Vercel
+// during static page generation (wallet adapters access browser APIs at init time)
+const Providers = dynamic(
+  () => import("./components/providers").then((m) => m.Providers),
+  { ssr: false }
+);
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,7 +30,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Vela Protocol | High-Yield RWAs",
-  description: "One token. Every RWA yield on Solana, auto-compounded. Access institutional grade yield natively on-chain.",
+  description:
+    "One token. Every RWA yield on Solana, auto-compounded. Access institutional grade yield natively on-chain.",
   openGraph: {
     title: "Vela Protocol",
     description: "One token. Every RWA yield on Solana, auto-compounded.",
@@ -54,14 +62,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Providers>
-        <body
-          suppressHydrationWarning
-          className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </Providers>
+      <body
+        suppressHydrationWarning
+        className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} antialiased`}
+      >
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
