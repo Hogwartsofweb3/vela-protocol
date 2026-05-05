@@ -285,10 +285,16 @@ export default function LandingPage() {
           </span>
           <div className="w-px h-16 bg-gradient-to-b from-accent/50 to-transparent mb-8"></div>
 
-          <div className="bg-[#2A1D0B] border border-secondary/30 rounded-xl px-12 py-6 shadow-[0_0_40px_rgba(245,166,35,0.05)]">
+          <div className="bg-[#2A1D0B] border border-secondary/30 rounded-xl px-12 py-8 shadow-[0_0_40px_rgba(245,166,35,0.05)] flex flex-col items-center gap-6">
             <span className="font-mono text-secondary text-sm md:text-base font-medium tracking-tight">
               You're leaving 30-80 bps on the table. Every day.
             </span>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="bg-accent text-black font-bold px-8 py-3 rounded-full text-sm hover:scale-105 hover:shadow-[0_0_20px_rgba(0,194,255,0.4)] transition-all duration-200"
+            >
+              Join the Waitlist
+            </button>
           </div>
 
           <div className="w-px h-16 bg-gradient-to-b from-transparent to-accent/50 mt-8 mb-4"></div>
@@ -419,7 +425,7 @@ export default function LandingPage() {
                 Earn & Compound
               </h3>
               <p className="font-body text-muted text-sm leading-relaxed relative z-10">
-                Receive yUSDC in return. Yields are settled on-chain and auto-compounded continuously. Full position analytics available via dashboard.
+                Receive yUSDC in return. Yields are settled on-chain and auto-compounded continuously. <strong className="text-white font-semibold">No lockups. Withdraw instantly at any time.</strong>
               </p>
             </div>
           </div>
