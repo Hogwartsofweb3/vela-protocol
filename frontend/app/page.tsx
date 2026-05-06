@@ -103,8 +103,8 @@ export default function LandingPage() {
           </button>
 
           {/* Stats Bar */}
-          <div className="w-full max-w-4xl glass-card rounded-2xl p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-border">
-            <div className="flex flex-col items-center justify-center pt-4 sm:pt-0">
+          <div className="w-full max-w-4xl glass-card rounded-2xl grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border">
+            <div className="flex flex-col items-center justify-center py-8 px-6">
               <span className="font-mono font-bold text-4xl text-accent mb-2">
                 $2B+
               </span>
@@ -112,7 +112,7 @@ export default function LandingPage() {
                 Solana RWA Market
               </span>
             </div>
-            <div className="flex flex-col items-center justify-center pt-4 sm:pt-0">
+            <div className="flex flex-col items-center justify-center py-8 px-6">
               <span className="font-mono font-bold text-4xl text-accent mb-2">
                 5+
               </span>
@@ -120,7 +120,7 @@ export default function LandingPage() {
                 Issuers Auto-Routed
               </span>
             </div>
-            <div className="flex flex-col items-center justify-center pt-4 sm:pt-0">
+            <div className="flex flex-col items-center justify-center py-8 px-6">
               <span className="font-mono font-bold text-4xl text-accent mb-2">
                 ~5.8%
               </span>
@@ -254,7 +254,7 @@ export default function LandingPage() {
 
           {/* Bottom Stat Banner */}
           <div
-            className="w-full glass-card rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between text-left gap-8 reveal-on-scroll"
+            className="w-full glass-card rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-start justify-between text-left gap-8 reveal-on-scroll"
             style={{ transitionDelay: "600ms" }}
           >
             <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -28,6 +28,18 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
   const [investorType, setInvestorType] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Escape key closes modal; lock body scroll when open
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -71,10 +83,10 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="waitlist-title"
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
       >
         <div
-          className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0d1220] p-8 shadow-[0_0_60px_rgba(0,194,255,0.1)]"
+          className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0d1220] p-8 shadow-[0_0_60px_rgba(0,194,255,0.1)] max-h-[80vh] overflow-y-auto pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
